@@ -16,7 +16,7 @@
     <div v-else class="room-grid">
       <div v-for="(r, i) in filteredRooms" :key="r.id" class="room-card" v-observe :style="{ transitionDelay: `${i * 0.08}s` }" @click="$router.push(`/rooms/${r.id}`)">
         <div class="room-img">
-          <div class="room-placeholder" :style="{ backgroundImage: 'url(' + getPhoto(i) + ')' }">
+          <div class="room-placeholder" :style="{ backgroundImage: 'url(' + getPhoto(r, i) + ')' }">
             <div class="room-placeholder-overlay"></div>
           </div>
           <div class="room-capacity">
@@ -78,7 +78,11 @@ onMounted(async () => {
   }
 })
 
-function getPhoto(i) { return roomPhotos[i % roomPhotos.length]; }
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost/Boking_Backend'
+function getPhoto(r, i) { 
+  if (r && r.gambar) return `${apiBase}/${r.gambar}`
+  return roomPhotos[i % roomPhotos.length]; 
+}
 function formatHarga(h) { return new Intl.NumberFormat('id-ID').format(h); }
 </script>
 

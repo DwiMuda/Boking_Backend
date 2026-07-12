@@ -8,6 +8,8 @@ function get_user_by_token($pdo) {
         if (count($parts) === 2) {
             $token = $parts[1];
         }
+    } elseif (isset($_GET['token'])) {
+        $token = $_GET['token'];
     }
 
     if (!$token) {

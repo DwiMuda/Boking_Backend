@@ -6,6 +6,9 @@
       <input v-model="from" type="date" />
       <input v-model="to" type="date" />
       <button class="btn btn-primary btn-sm" @click="fetchReports">Cari</button>
+      <button class="btn btn-secondary btn-sm flex items-center gap-0-5" @click="downloadPDF">
+        <DownloadIcon :size="16" /> Download PDF
+      </button>
     </div>
 
     <AppSkeleton v-if="loading" type="text" :count="4" />
@@ -29,6 +32,16 @@
             </div>
           </div>
           <div class="stat-value">Rp {{ formatHarga(report.summary.revenue) }}</div>
+        </div>
+      </div>
+
+      <div class="card mb-1">
+        <h3 class="mb-1">Grafik Pendapatan</h3>
+        <div v-if="report.daily && report.daily.length > 0">
+          <apexchart type="area" height="300" :options="chartOptions" :series="chartSeries"></apexchart>
+        </div>
+        <div v-else class="empty-state">
+          <AppEmptyState type="default" message="Belum ada data untuk grafik" />
         </div>
       </div>
 
@@ -74,16 +87,23 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance } from 'vue'
+import { ref, computed, getCurrentInstance } from 'vue'
 import { getAdminReports } from '../../api'
-import { CalendarCheckIcon, WalletIcon } from '@lucide/vue'
+import { CalendarCheckIcon, WalletIcon, DownloadIcon } from '@lucide/vue'
 
 const { proxy } = getCurrentInstance()
 
-const from = ref(new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0])
-const to = ref(new Date().toISOString().split('T')[0])
+const from = ref('')
+const to = ref('')
 const report = ref(null)
 const loading = ref(false)
+
+function downloadPDF() {
+  const token = localStorage.getItem('token') || ''
+  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  const url = `${apiBase}/api/admin/reports_pdf.php?from=${from.value}&to=${to.value}&token=${token}`
+  window.open(url, '_blank')
+}
 
 async function fetchReports() {
   loading.value = true
@@ -102,4 +122,25 @@ fetchReports()
 function formatHarga(harga) {
   return new Intl.NumberFormat('id-ID').format(harga)
 }
+
+const chartOptions = computed(() => {
+  const dates = report.value?.daily ? [...new Set(report.value.daily.map(d => d.tanggal))] : []
+  return {
+    chart: { type: 'area', fontFamily: 'inherit', toolbar: { show: false }, parentHeightOffset: 0 },
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: 2 },
+    xaxis: { categories: dates, labels: { style: { colors: 'var(--text-muted)' } } },
+    yaxis: { labels: { formatter: (val) => 'Rp ' + (val / 1000) + 'k', style: { colors: 'var(--text-muted)' } } },
+    colors: ['#cfa870'],
+    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] } },
+    grid: { borderColor: 'var(--border-subtle)', strokeDashArray: 4 }
+  }
+})
+
+const chartSeries = computed(() => {
+  if (!report.value?.daily) return []
+  const byDate = {}
+  report.value.daily.forEach(d => { byDate[d.tanggal] = (byDate[d.tanggal] || 0) + d.total_pendapatan })
+  return [{ name: 'Pendapatan', data: Object.values(byDate) }]
+})
 </script>

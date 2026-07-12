@@ -7,7 +7,8 @@ try {
     require_method('GET');
     $user = get_user_by_token($pdo);
     $page = (int)($_GET['page'] ?? 1);
-    $result = BookingService::getMyBookings($pdo, $user['id'], $page);
+    $tipe = $_GET['tipe'] ?? '';
+    $result = BookingService::getMyBookings($pdo, $user['id'], $page, $tipe);
     $page = $result['page'];
     $perPage = $result['per_page'];
     json_response([

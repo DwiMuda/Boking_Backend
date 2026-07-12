@@ -3,14 +3,39 @@ require_once __DIR__ . '/../includes/validators.php';
 require_once __DIR__ . '/../includes/mailer.php';
 
 class RoomService {
-    public static function getRoomTypes($pdo) {
-        $stmt = $pdo->prepare("SELECT rt.*, (SELECT COUNT(*) FROM rooms r WHERE r.room_type_id = rt.id AND r.status = 'available') as available_rooms FROM room_types rt WHERE rt.is_active = 1 ORDER BY rt.harga_per_malam ASC");
-        $stmt->execute();
+    public static function getRoomTypes($pdo, $kategori = null) {
+        $sql = "SELECT rt.*, (SELECT COUNT(*) FROM rooms r WHERE r.room_type_id = rt.id AND r.status = 'available') as available_rooms FROM room_types rt WHERE rt.is_active = 1";
+        $params = [];
+        
+        if ($kategori) {
+            $sql .= " AND rt.kategori = ?";
+            $params[] = $kategori;
+        }
+        
+        $sql .= " ORDER BY rt.harga_per_malam ASC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         $types = $stmt->fetchAll();
+        
         foreach ($types as &$t) {
             cast_types($t, ['id' => 'integer', 'harga_per_malam' => 'double', 'kapasitas' => 'integer', 'is_active' => 'boolean', 'available_rooms' => 'integer']);
         }
         return $types;
+    }
+
+    public static function getValidCategories($pdo) {
+        $stmt = $pdo->prepare("SELECT name FROM room_categories WHERE is_active = 1");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public static function categorizeRoomByName($nama) {
+        $nama = strtolower($nama);
+        if (strpos($nama, 'premium') !== false) return 'Premium';
+        if (strpos($nama, 'deluxe') !== false) return 'Deluxe';
+        if (strpos($nama, 'family') !== false || strpos($nama, 'keluarga') !== false) return 'Family';
+        if (strpos($nama, 'suite') !== false) return 'Suite';
+        return 'Standard';
     }
 
     public static function getRoomTypeById($pdo, $id) {
@@ -147,17 +172,24 @@ class RoomService {
         $kapasitas = (int)($data['kapasitas'] ?? 2);
         if ($kapasitas < 1) throw new AppException('Kapasitas harus lebih dari 0', 400);
 
-        $stmt = $pdo->prepare("INSERT INTO room_types (nama, deskripsi, harga_per_malam, kapasitas, gambar, fasilitas) VALUES (?, ?, ?, ?, ?, ?)");
+        $kategori = $data['kategori'] ?? 'Standard';
+        $valid_categories = self::getValidCategories($pdo);
+        if (!in_array($kategori, $valid_categories)) {
+            throw new AppException("Kategori tidak valid: $kategori. Kategori yang tersedia: " . implode(', ', $valid_categories), 400);
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO room_types (nama, deskripsi, harga_per_malam, kapasitas, gambar, fasilitas, kategori) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $nama,
             trim($data['deskripsi'] ?? ''),
             $harga,
             $kapasitas,
             trim($data['gambar'] ?? ''),
-            trim($data['fasilitas'] ?? '')
+            trim($data['fasilitas'] ?? ''),
+            $kategori
         ]);
 
-        return ['id' => (int)$pdo->lastInsertId(), 'nama' => $nama, 'harga_per_malam' => $harga, 'kapasitas' => $kapasitas, 'is_active' => true];
+        return ['id' => (int)$pdo->lastInsertId(), 'nama' => $nama, 'harga_per_malam' => $harga, 'kapasitas' => $kapasitas, 'kategori' => $kategori, 'is_active' => true];
     }
 
     public static function updateRoomType($pdo, $id, $data) {

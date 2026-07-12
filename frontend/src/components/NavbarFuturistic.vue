@@ -3,12 +3,7 @@
     <div class="nf-container">
       <router-link to="/" class="nf-brand" @click="closeNav">
         <div class="nf-brand-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
+          <PalmtreeIcon :size="20" />
         </div>
         <span class="nf-brand-text">Tropical</span>
       </router-link>
@@ -71,7 +66,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import {
-  HomeIcon, BedDoubleIcon, SparklesIcon, InfoIcon, ImageIcon,
+  HomeIcon, KeyIcon, PalmtreeIcon, CompassIcon, ImageIcon,
   UserIcon, LogOutIcon, CalendarCheckIcon, LayoutDashboardIcon
 } from '@lucide/vue'
 
@@ -84,10 +79,10 @@ const hideNav = ref(false)
 
 const menuItems = [
   { path: '/', label: 'Beranda', icon: HomeIcon },
-  { path: '/rooms', label: 'Kamar', icon: BedDoubleIcon },
-  { path: '/services', label: 'Layanan', icon: SparklesIcon },
+  { path: '/rooms', label: 'Kamar', icon: KeyIcon },
+  { path: '/services', label: 'Layanan', icon: PalmtreeIcon },
   { path: '/gallery', label: 'Galeri', icon: ImageIcon },
-  { path: '/about', label: 'Tentang', icon: InfoIcon },
+  { path: '/about', label: 'Tentang', icon: CompassIcon },
 ]
 
 function isActive(path) {
@@ -140,15 +135,15 @@ onMounted(() => {
   align-items: center;
   gap: 0.25rem;
   padding: 0.45rem 0.6rem;
-  background: rgba(8, 12, 28, 0.75);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 9999px;
   box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.5),
-    0 0 80px rgba(45, 90, 69, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 8px 40px rgba(0, 0, 0, 0.08),
+    0 0 80px rgba(45, 90, 69, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .nf-brand {
@@ -157,11 +152,11 @@ onMounted(() => {
   gap: 0.5rem;
   padding: 0.35rem 1rem 0.35rem 0.5rem;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 700;
   font-size: 0.9rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
   margin-right: 0.25rem;
 }
 
@@ -189,7 +184,7 @@ onMounted(() => {
   padding: 0.45rem 1rem;
   border-radius: 9999px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-secondary);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
@@ -198,8 +193,8 @@ onMounted(() => {
 }
 
 .nf-link:hover {
-  color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .nf-link.active {
@@ -217,7 +212,7 @@ onMounted(() => {
   gap: 0.5rem;
   margin-left: 0.25rem;
   padding-left: 0.75rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .nf-user {
@@ -246,12 +241,12 @@ onMounted(() => {
   top: calc(100% + 8px);
   right: 0;
   min-width: 180px;
-  background: rgba(8, 12, 28, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
   padding: 0.4rem;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
 }
 
 .nf-drop-item {
@@ -261,7 +256,7 @@ onMounted(() => {
   padding: 0.55rem 0.75rem;
   border-radius: 10px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   font-size: 0.8rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 500;
@@ -274,8 +269,8 @@ onMounted(() => {
 }
 
 .nf-drop-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
 }
 
 .nf-drop-danger:hover {
@@ -285,7 +280,7 @@ onMounted(() => {
 
 .nf-drop-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.06);
   margin: 0.25rem 0.5rem;
 }
 
@@ -293,7 +288,7 @@ onMounted(() => {
   padding: 0.4rem 1rem;
   border-radius: 9999px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 500;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -301,7 +296,7 @@ onMounted(() => {
 }
 
 .nf-btn-login:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
 }
 
 .nf-btn-register {
@@ -336,7 +331,7 @@ onMounted(() => {
   display: block;
   width: 18px;
   height: 2px;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--text-primary);
   border-radius: 2px;
   transition: all 0.25s ease;
 }
@@ -384,13 +379,13 @@ onMounted(() => {
     left: 0;
     right: 0;
     flex-direction: column;
-    background: rgba(8, 12, 28, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 20px;
     padding: 0.5rem;
     gap: 0.15rem;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
   }
 
   .nf-menu-open {
