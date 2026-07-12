@@ -78,7 +78,7 @@ async function handleRegister() {
   }
   const success = await authStore.register(nama.value, email.value, password.value, no_telp.value)
   if (success) {
-    router.push('/login?registered=1')
+    router.push('/verify-email')
   }
 }
 </script>

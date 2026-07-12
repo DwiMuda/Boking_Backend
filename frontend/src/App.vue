@@ -16,7 +16,11 @@
 import NavbarFuturistic from './components/NavbarFuturistic.vue'
 </script>
 
-<style scoped>
+<style>
+#app {
+  padding-top: calc(4rem + 16px);
+}
+
 .page-enter-active,
 .page-leave-active {
   transition: all 0.25s ease;

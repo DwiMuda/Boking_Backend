@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login as apiLogin, register as apiRegister, getProfile, logout as apiLogout, updateProfile as apiUpdateProfile } from '../api'
+import { login as apiLogin, register as apiRegister, getProfile, logout as apiLogout, updateProfile as apiUpdateProfile, verifyEmail as apiVerifyEmail, resendOtp as apiResendOtp } from '../api'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
   const token = ref(localStorage.getItem('token') || '')
+  const registeredEmail = ref('')
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
@@ -21,11 +22,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function register(nama, email, password, no_telp) {
     const res = await apiRegister(nama, email, password, no_telp)
+    registeredEmail.value = email
+    return res
+  }
+
+  async function verifyEmail(email, otp) {
+    const res = await apiVerifyEmail(email, otp)
     user.value = res.data
     token.value = res.data.token
     localStorage.setItem('user', JSON.stringify(res.data))
     localStorage.setItem('token', res.data.token)
+    registeredEmail.value = ''
     return res
+  }
+
+  async function resendOtp(email) {
+    return await apiResendOtp(email)
   }
 
   async function fetchProfile() {
@@ -53,5 +65,5 @@ export const useAuthStore = defineStore('auth', () => {
     return res
   }
 
-  return { user, token, isLoggedIn, isAdmin, userName, login, register, fetchProfile, logout, updateProfile }
+  return { user, token, registeredEmail, isLoggedIn, isAdmin, userName, login, register, verifyEmail, resendOtp, fetchProfile, logout, updateProfile }
 })

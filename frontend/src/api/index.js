@@ -87,6 +87,14 @@ export function updateProfile(data) {
   return api.post('/api/auth/update.php', data)
 }
 
+export function verifyEmail(email, otp) {
+  return api.post('/api/auth/verify_email.php', { email, otp })
+}
+
+export function resendOtp(email) {
+  return api.post('/api/auth/resend_otp.php', { email })
+}
+
 export function getAdminBookings(params = {}) {
   const query = new URLSearchParams(params).toString()
   return api.get(`/api/admin/bookings.php?${query}`)

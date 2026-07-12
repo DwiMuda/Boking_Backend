@@ -32,6 +32,18 @@ function send_email($to, $subject, $body) {
     }
 }
 
+function email_verification_otp($user_email, $user_nama, $otp) {
+    $subject = "Kode Verifikasi - Sistem Booking";
+    $body = "
+        <h2>Halo $user_nama,</h2>
+        <p>Kode verifikasi akun kamu:</p>
+        <div style='text-align:center;padding:20px;font-size:36px;letter-spacing:8px;font-weight:700;color:#2D5A45'>$otp</div>
+        <p>Kode berlaku selama <strong>10 menit</strong>.</p>
+        <p>Abaikan email ini jika kamu tidak mendaftar.</p>
+    ";
+    return send_email($user_email, $subject, $body);
+}
+
 function email_booking_created($user_email, $user_nama, $data) {
     $subject = "Konfirmasi Booking #{$data['id']} - Sistem Booking";
     $body = "
