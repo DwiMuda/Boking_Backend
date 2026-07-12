@@ -1,41 +1,51 @@
 <template>
   <div class="max-w-600">
     <h2 class="mb-1">Form Booking</h2>
+
     <div v-if="error" class="alert alert-error">{{ error }}</div>
-    <div v-if="service" class="card">
-      <h3>{{ service.nama }}</h3>
-      <div class="price">Rp {{ formatHarga(service.harga) }}</div>
-      <div class="duration">Durasi: {{ service.durasi_menit }} menit</div>
+
+    <div v-if="service" class="card mb-1">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3>{{ service.nama }}</h3>
+          <div class="duration mt-0-5">{{ service.durasi_menit }} menit</div>
+        </div>
+        <div class="price">Rp {{ formatHarga(service.harga) }}</div>
+      </div>
     </div>
+
     <div class="card">
       <div class="form-group">
         <label>Pilih Tanggal</label>
-        <input v-model="tgl" type="date" :min="minDate" @change="checkAvailability" />
+        <input v-model="tgl" type="date" :min="minDate" @change="checkSlotAvailability" />
       </div>
-      <div v-if="loadingSlots" class="loading">Memeriksa ketersediaan...</div>
-      <div v-else-if="slots.length > 0">
+
+      <div v-if="loadingSlots" class="loading">
+        <AppSpinner variant="dots" size="sm" />
+        <span>Memeriksa ketersediaan...</span>
+      </div>
+
+      <div v-else-if="slots.length > 0" class="form-group">
         <label>Pilih Jam</label>
         <div class="slot-grid">
-          <button
-            v-for="slot in slots"
-            :key="slot"
-            class="slot-btn"
-            :class="{ selected: jam === slot, booked: slot.includes('booked') }"
-            :disabled="slot.includes('booked')"
-            @click="jam = slot"
-          >
+          <button v-for="slot in slots" :key="slot" class="slot-btn" :class="{ selected: jam === slot }" :disabled="jam === slot" @click="jam = slot">
             {{ slot.substring(0, 5) }}
           </button>
         </div>
+        <p v-if="jam" class="text-muted fs-0-9 mt-0-5">Jam dipilih: {{ jam.substring(0, 5) }}</p>
       </div>
+
       <div v-else-if="tgl && !loadingSlots" class="empty-state">
-        Tidak ada jam tersedia untuk tanggal ini
+        <AppEmptyState type="search" message="Tidak ada jam tersedia untuk tanggal ini" />
       </div>
+
       <div class="form-group">
         <label>Catatan (opsional)</label>
         <textarea v-model="catatan" rows="3" placeholder="Catatan untuk booking..."></textarea>
       </div>
-      <button class="btn btn-primary" :disabled="!jam || submitting" @click="submitBooking">
+
+      <button class="btn btn-primary btn-full" :disabled="!jam || submitting" @click="submitBooking">
+        <AppSpinner v-if="submitting" variant="ring" size="sm" />
         {{ submitting ? 'Memproses...' : 'Konfirmasi Booking' }}
       </button>
     </div>
@@ -72,11 +82,12 @@ onMounted(async () => {
   }
 })
 
-async function checkAvailability() {
+async function checkSlotAvailability() {
   if (!tgl.value || !service.value) return
   jam.value = ''
   slots.value = []
   loadingSlots.value = true
+  error.value = ''
   try {
     const res = await checkAvailability(service.value.id, tgl.value)
     slots.value = res.data.available_slots

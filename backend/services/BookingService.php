@@ -13,8 +13,8 @@ class BookingService {
 
         $service = find_or_fail($pdo, 'services', $service_id, '*', "is_active = 1");
 
-        $stmt = $pdo->prepare("INSERT INTO bookings (user_id, service_id, tgl_booking, jam_booking, total_harga, catatan)
-            SELECT ?, ?, ?, ?, ?, ? FROM DUAL
+        $stmt = $pdo->prepare("INSERT INTO bookings (user_id, service_id, tipe_booking, tgl_booking, jam_booking, total_harga, catatan)
+            SELECT ?, ?, 'service', ?, ?, ?, ? FROM DUAL
             WHERE NOT EXISTS (
                 SELECT 1 FROM bookings
                 WHERE service_id = ? AND tgl_booking = ? AND jam_booking = ? AND status != 'cancelled'
@@ -27,11 +27,11 @@ class BookingService {
 
         $booking_id = (int)$pdo->lastInsertId();
 
-        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.deskripsi as service_deskripsi, s.durasi_menit
+        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.deskripsi as service_deskripsi, s.durasi_menit, s.kategori
             FROM bookings b JOIN services s ON b.service_id = s.id WHERE b.id = ?");
         $stmt->execute([$booking_id]);
         $booking = $stmt->fetch();
-        cast_types($booking, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer']);
+        cast_types($booking, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer', 'jumlah_tamu' => 'integer']);
 
         $stmt = $pdo->prepare("SELECT email, nama FROM users WHERE id = ?");
         $stmt->execute([$user['id']]);
@@ -67,8 +67,7 @@ class BookingService {
             SELECT b.jam_booking, s.durasi_menit
             FROM bookings b
             JOIN services s ON b.service_id = s.id
-            WHERE b.service_id = ? AND b.tgl_booking = ? AND b.status != 'cancelled'
-            ORDER BY b.jam_booking ASC");
+            WHERE b.service_id = ? AND b.tgl_booking = ? AND b.status != 'cancelled'");
         $stmt->execute([$service_id, $tgl]);
         $booked = $stmt->fetchAll();
 
@@ -139,9 +138,14 @@ class BookingService {
 
     public static function getDetail($pdo, $user, $id) {
         $id = validate_positive_int($id, 'ID booking');
-        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.deskripsi as service_deskripsi, s.durasi_menit,
-            u.nama as user_nama, u.email as user_email, u.no_telp as user_no_telp
-            FROM bookings b JOIN services s ON b.service_id = s.id JOIN users u ON b.user_id = u.id WHERE b.id = ?");
+        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.deskripsi as service_deskripsi, s.durasi_menit, s.kategori,
+            u.nama as user_nama, u.email as user_email, u.no_telp as user_no_telp,
+            rt.nama as room_type_nama, r.nomor_kamar, rt.harga_per_malam as room_harga_per_malam
+            FROM bookings b
+            LEFT JOIN services s ON b.service_id = s.id
+            LEFT JOIN rooms r ON b.room_id = r.id
+            LEFT JOIN room_types rt ON r.room_type_id = rt.id
+            JOIN users u ON b.user_id = u.id WHERE b.id = ?");
         $stmt->execute([$id]);
         $booking = $stmt->fetch();
 
@@ -152,7 +156,7 @@ class BookingService {
             throw new AppException('Akses ditolak', 403);
         }
 
-        cast_types($booking, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer']);
+        cast_types($booking, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer', 'jumlah_tamu' => 'integer']);
         return $booking;
     }
 
@@ -162,14 +166,18 @@ class BookingService {
         $stmt->execute([$user_id]);
         $total = (int)$stmt->fetch()['total'];
 
-        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.durasi_menit
-            FROM bookings b JOIN services s ON b.service_id = s.id
+        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.durasi_menit, s.kategori,
+            rt.nama as room_type_nama, r.nomor_kamar
+            FROM bookings b
+            LEFT JOIN services s ON b.service_id = s.id
+            LEFT JOIN rooms r ON b.room_id = r.id
+            LEFT JOIN room_types rt ON r.room_type_id = rt.id
             WHERE b.user_id = ? ORDER BY b.created_at DESC LIMIT ? OFFSET ?");
         $stmt->execute([$user_id, $p['limit'], $p['offset']]);
         $bookings = $stmt->fetchAll();
 
         foreach ($bookings as &$b) {
-            cast_types($b, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer']);
+            cast_types($b, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer', 'jumlah_tamu' => 'integer']);
         }
 
         return ['items' => $bookings, 'total' => $total, 'page' => $p['page'], 'per_page' => $p['limit']];
@@ -177,9 +185,19 @@ class BookingService {
 
     public static function getAllBookings($pdo, $filters = [], $page = 1) {
         $p = paginate($page);
-        $sql = "SELECT b.*, s.nama as service_nama, s.durasi_menit, u.nama as user_nama, u.email as user_email, u.no_telp as user_no_telp
-            FROM bookings b JOIN services s ON b.service_id = s.id JOIN users u ON b.user_id = u.id WHERE 1=1";
-        $count_sql = "SELECT COUNT(*) as total FROM bookings b JOIN services s ON b.service_id = s.id JOIN users u ON b.user_id = u.id WHERE 1=1";
+        $sql = "SELECT b.*, s.nama as service_nama, s.durasi_menit, s.kategori,
+            u.nama as user_nama, u.email as user_email, u.no_telp as user_no_telp,
+            rt.nama as room_type_nama, r.nomor_kamar
+            FROM bookings b
+            LEFT JOIN services s ON b.service_id = s.id
+            LEFT JOIN rooms r ON b.room_id = r.id
+            LEFT JOIN room_types rt ON r.room_type_id = rt.id
+            JOIN users u ON b.user_id = u.id WHERE 1=1";
+        $count_sql = "SELECT COUNT(*) as total FROM bookings b
+            LEFT JOIN services s ON b.service_id = s.id
+            LEFT JOIN rooms r ON b.room_id = r.id
+            LEFT JOIN room_types rt ON r.room_type_id = rt.id
+            JOIN users u ON b.user_id = u.id WHERE 1=1";
         $params = [];
 
         if (!empty($filters['status'])) {
@@ -188,11 +206,17 @@ class BookingService {
             $params[] = $filters['status'];
         }
         if (!empty($filters['search'])) {
-            $sql .= " AND (u.nama LIKE ? OR s.nama LIKE ?)";
-            $count_sql .= " AND (u.nama LIKE ? OR s.nama LIKE ?)";
+            $sql .= " AND (u.nama LIKE ? OR s.nama LIKE ? OR rt.nama LIKE ?)";
+            $count_sql .= " AND (u.nama LIKE ? OR s.nama LIKE ? OR rt.nama LIKE ?)";
             $search = '%' . $filters['search'] . '%';
             $params[] = $search;
             $params[] = $search;
+            $params[] = $search;
+        }
+        if (!empty($filters['tipe'])) {
+            $sql .= " AND b.tipe_booking = ?";
+            $count_sql .= " AND b.tipe_booking = ?";
+            $params[] = $filters['tipe'];
         }
 
         $stmt = $pdo->prepare($count_sql);
@@ -208,7 +232,7 @@ class BookingService {
         $bookings = $stmt->fetchAll();
 
         foreach ($bookings as &$b) {
-            cast_types($b, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer']);
+            cast_types($b, ['id' => 'integer', 'user_id' => 'integer', 'service_id' => 'integer', 'total_harga' => 'double', 'durasi_menit' => 'integer', 'jumlah_tamu' => 'integer']);
         }
 
         return ['items' => $bookings, 'total' => $total, 'page' => $p['page'], 'per_page' => $p['limit']];

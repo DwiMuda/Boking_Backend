@@ -2,14 +2,44 @@
 require_once __DIR__ . '/../includes/validators.php';
 
 class ServiceService {
-    public static function getAll($pdo) {
-        $stmt = $pdo->prepare("SELECT * FROM services WHERE is_active = 1 ORDER BY nama ASC");
+    public static function getAll($pdo, $kategori = '') {
+        $sql = "SELECT * FROM services WHERE is_active = 1";
+        $params = [];
+        if (!empty($kategori)) {
+            $sql .= " AND kategori = ?";
+            $params[] = $kategori;
+        }
+        $sql .= " ORDER BY nama ASC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $services = $stmt->fetchAll();
+        foreach ($services as &$s) {
+            cast_types($s, ['id' => 'integer', 'harga' => 'double', 'durasi_menit' => 'integer', 'is_active' => 'boolean']);
+        }
+        return $services;
+    }
+
+    public static function getAllAdmin($pdo) {
+        $stmt = $pdo->prepare("SELECT * FROM services ORDER BY nama ASC");
         $stmt->execute();
         $services = $stmt->fetchAll();
         foreach ($services as &$s) {
             cast_types($s, ['id' => 'integer', 'harga' => 'double', 'durasi_menit' => 'integer', 'is_active' => 'boolean']);
         }
         return $services;
+    }
+
+    public static function getByCategory($pdo) {
+        $stmt = $pdo->prepare("SELECT * FROM services WHERE is_active = 1 ORDER BY FIELD(kategori, 'spa', 'dining', 'other'), nama ASC");
+        $stmt->execute();
+        $services = $stmt->fetchAll();
+        $grouped = ['spa' => [], 'dining' => [], 'other' => []];
+        foreach ($services as $s) {
+            cast_types($s, ['id' => 'integer', 'harga' => 'double', 'durasi_menit' => 'integer', 'is_active' => 'boolean']);
+            $cat = $s['kategori'] ?? 'other';
+            $grouped[$cat][] = $s;
+        }
+        return $grouped;
     }
 
     public static function getById($pdo, $id) {
@@ -27,26 +57,34 @@ class ServiceService {
     public static function create($pdo, $data) {
         $nama = validate_required($data['nama'] ?? '', 'Nama layanan');
         $harga = (float)($data['harga'] ?? 0);
-        if ($harga < 1) {
-            throw new AppException('Harga harus lebih dari 0', 400);
-        }
+        if ($harga < 1) throw new AppException('Harga harus lebih dari 0', 400);
         $durasi_menit = (int)($data['durasi_menit'] ?? 60);
-        if ($durasi_menit < 1) {
-            throw new AppException('Durasi harus lebih dari 0', 400);
+        if ($durasi_menit < 1) throw new AppException('Durasi harus lebih dari 0', 400);
+        $kategori = trim($data['kategori'] ?? 'spa');
+        if (!in_array($kategori, ['spa', 'dining', 'other'])) {
+            throw new AppException('Kategori tidak valid. Pilihan: spa, dining, other', 400);
         }
-        $deskripsi = trim($data['deskripsi'] ?? '');
-        $gambar = trim($data['gambar'] ?? '');
 
-        $stmt = $pdo->prepare("INSERT INTO services (nama, deskripsi, harga, durasi_menit, gambar) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$nama, $deskripsi, $harga, $durasi_menit, $gambar]);
+        $stmt = $pdo->prepare("INSERT INTO services (nama, deskripsi, harga, durasi_menit, kategori, fasilitas, gambar) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $nama,
+            trim($data['deskripsi'] ?? ''),
+            $harga,
+            $durasi_menit,
+            $kategori,
+            trim($data['fasilitas'] ?? ''),
+            trim($data['gambar'] ?? '')
+        ]);
 
         return [
             'id' => (int)$pdo->lastInsertId(),
             'nama' => $nama,
-            'deskripsi' => $deskripsi,
+            'deskripsi' => trim($data['deskripsi'] ?? ''),
             'harga' => $harga,
             'durasi_menit' => $durasi_menit,
-            'gambar' => $gambar,
+            'kategori' => $kategori,
+            'gambar' => trim($data['gambar'] ?? ''),
+            'fasilitas' => trim($data['fasilitas'] ?? ''),
             'is_active' => true
         ];
     }
@@ -58,13 +96,11 @@ class ServiceService {
         $fields = [];
         $params = [];
 
-        if (isset($data['nama'])) {
-            $fields[] = 'nama = ?';
-            $params[] = trim($data['nama']);
-        }
-        if (isset($data['deskripsi'])) {
-            $fields[] = 'deskripsi = ?';
-            $params[] = trim($data['deskripsi']);
+        foreach (['nama' => 'trim', 'deskripsi' => 'trim', 'gambar' => 'trim', 'fasilitas' => 'trim'] as $field => $fn) {
+            if (isset($data[$field])) {
+                $fields[] = "$field = ?";
+                $params[] = $fn($data[$field]);
+            }
         }
         if (isset($data['harga'])) {
             $fields[] = 'harga = ?';
@@ -74,22 +110,22 @@ class ServiceService {
             $fields[] = 'durasi_menit = ?';
             $params[] = (int)$data['durasi_menit'];
         }
-        if (isset($data['gambar'])) {
-            $fields[] = 'gambar = ?';
-            $params[] = trim($data['gambar']);
-        }
         if (isset($data['is_active'])) {
             $fields[] = 'is_active = ?';
             $params[] = (int)$data['is_active'];
         }
-
-        if (empty($fields)) {
-            throw new AppException('Tidak ada data yang diupdate', 400);
+        if (isset($data['kategori'])) {
+            if (!in_array($data['kategori'], ['spa', 'dining', 'other'])) {
+                throw new AppException('Kategori tidak valid', 400);
+            }
+            $fields[] = 'kategori = ?';
+            $params[] = $data['kategori'];
         }
 
+        if (empty($fields)) throw new AppException('Tidak ada data yang diupdate', 400);
+
         $params[] = $id;
-        $sql = "UPDATE services SET " . implode(', ', $fields) . " WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
+        $stmt = $pdo->prepare("UPDATE services SET " . implode(', ', $fields) . " WHERE id = ?");
         $stmt->execute($params);
 
         return self::getById($pdo, $id);
@@ -101,9 +137,7 @@ class ServiceService {
 
         $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM bookings WHERE service_id = ?");
         $stmt->execute([$id]);
-        $count = (int)$stmt->fetch()['total'];
-
-        if ($count > 0) {
+        if ((int)$stmt->fetch()['total'] > 0) {
             $stmt = $pdo->prepare("UPDATE services SET is_active = 0 WHERE id = ?");
             $stmt->execute([$id]);
             return;

@@ -1,20 +1,29 @@
 <template>
-  <div>
+  <div class="container">
     <div class="flex justify-between items-center mb-1">
       <h2>Kelola Layanan</h2>
-      <button class="btn btn-primary" @click="openAdd">Tambah Layanan</button>
+      <button class="btn btn-primary btn-sm" @click="openAdd">Tambah Layanan</button>
     </div>
 
-    <div v-if="loading" class="loading">Memuat data...</div>
-    <div v-else-if="services.length === 0" class="empty-state">Belum ada layanan</div>
-    <div v-else class="card overflow-x-auto">
+    <AppSkeleton v-if="loading" type="table-row" :count="4" />
+
+    <div v-else-if="services.length === 0">
+      <AppEmptyState type="default" message="Belum ada layanan. Tambahkan layanan pertama Anda!">
+        <template #action>
+          <button class="btn btn-primary btn-sm" @click="openAdd">Tambah Layanan</button>
+        </template>
+      </AppEmptyState>
+    </div>
+
+    <div v-else class="table-wrapper">
       <table class="table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nama</th>
+            <th>Kategori</th>
             <th>Harga</th>
-            <th>Durasi (menit)</th>
+            <th>Durasi</th>
             <th>Status</th>
             <th>Aksi</th>
           </tr>
@@ -23,29 +32,37 @@
           <tr v-for="s in services" :key="s.id">
             <td>#{{ s.id }}</td>
             <td>{{ s.nama }}</td>
+            <td><span class="badge" :class="s.kategori === 'spa' ? 'badge-active' : 'badge-gold'">{{ s.kategori }}</span></td>
             <td>Rp {{ formatHarga(s.harga) }}</td>
-            <td>{{ s.durasi_menit }}</td>
-            <td><span class="badge" :class="s.is_active ? 'badge-confirmed' : 'badge-cancelled'">{{ s.is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
+            <td>{{ s.durasi_menit }} menit</td>
+            <td><span class="badge" :class="s.is_active ? 'badge-active' : 'badge-inactive'">{{ s.is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
             <td>
-              <button class="btn btn-outline fs-0-85 p-0-4-0-8" @click="openEdit(s)">Edit</button>
-              <button class="btn btn-danger fs-0-85 p-0-4-0-8 ml-0-3" @click="handleDelete(s.id)">Hapus</button>
+              <button class="btn btn-ghost btn-sm" @click="openEdit(s)">Edit</button>
+              <button class="btn btn-danger btn-sm" @click="confirmDelete(s.id)">Hapus</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal">
-        <h3>{{ editing ? 'Edit Layanan' : 'Tambah Layanan' }}</h3>
-        <div class="form-group">
-          <label>Nama</label>
-          <input v-model="form.nama" />
-        </div>
-        <div class="form-group">
-          <label>Deskripsi</label>
-          <textarea v-model="form.deskripsi" rows="3"></textarea>
-        </div>
+    <AppModal :open="showModal" :title="editing ? 'Edit Layanan' : 'Tambah Layanan'" @close="closeModal">
+      <div class="form-group">
+        <label>Nama</label>
+        <input v-model="form.nama" />
+      </div>
+      <div class="form-group">
+        <label>Deskripsi</label>
+        <textarea v-model="form.deskripsi" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Kategori</label>
+        <select v-model="form.kategori">
+          <option value="spa">Spa &amp; Wellness</option>
+          <option value="dining">Restoran &amp; Dining</option>
+          <option value="other">Lainnya</option>
+        </select>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label>Harga (Rp)</label>
           <input v-model.number="form.harga" type="number" min="0" />
@@ -54,21 +71,30 @@
           <label>Durasi (menit)</label>
           <input v-model.number="form.durasi_menit" type="number" min="30" step="30" />
         </div>
-        <div v-if="modalError" class="alert alert-danger">{{ modalError }}</div>
-        <div class="flex gap-0-5 justify-end mt-1">
-          <button class="btn btn-outline" @click="closeModal">Batal</button>
-          <button class="btn btn-primary" :disabled="saving" @click="handleSave">
-            {{ saving ? 'Menyimpan...' : 'Simpan' }}
-          </button>
-        </div>
       </div>
-    </div>
+      <div class="form-group">
+        <label>Fasilitas (opsional)</label>
+        <textarea v-model="form.fasilitas" rows="2" placeholder="Misal: Handuk, Minuman, Ruang AC"></textarea>
+      </div>
+      <div v-if="modalError" class="alert alert-error">{{ modalError }}</div>
+      <template #footer>
+        <button class="btn btn-ghost" @click="closeModal">Batal</button>
+        <button class="btn btn-primary" :disabled="saving" @click="handleSave">
+          <AppSpinner v-if="saving" variant="ring" size="sm" />
+          {{ saving ? 'Menyimpan...' : 'Simpan' }}
+        </button>
+      </template>
+    </AppModal>
+
+    <AppConfirm :open="confirmOpen" message="Yakin ingin menghapus layanan ini?" action-label="Hapus" @confirm="doDelete" @cancel="confirmOpen = false" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, getCurrentInstance } from 'vue'
 import { getServices, createService, updateService, deleteService } from '../../api'
+
+const { proxy } = getCurrentInstance()
 
 const services = ref([])
 const loading = ref(true)
@@ -76,7 +102,9 @@ const showModal = ref(false)
 const editing = ref(null)
 const saving = ref(false)
 const modalError = ref('')
-const form = ref({ nama: '', deskripsi: '', harga: 0, durasi_menit: 60 })
+const confirmOpen = ref(false)
+const deleteId = ref(null)
+const form = ref({ nama: '', deskripsi: '', harga: 0, durasi_menit: 60, kategori: 'spa', fasilitas: '' })
 
 async function fetchServices() {
   loading.value = true
@@ -84,7 +112,7 @@ async function fetchServices() {
     const res = await getServices()
     services.value = res.data
   } catch (e) {
-    alert(e.message || 'Gagal memuat layanan')
+    proxy.$toast(e.message || 'Gagal memuat layanan', 'error')
   } finally {
     loading.value = false
   }
@@ -92,14 +120,14 @@ async function fetchServices() {
 
 function openAdd() {
   editing.value = null
-  form.value = { nama: '', deskripsi: '', harga: 0, durasi_menit: 60 }
+    form.value = { nama: '', deskripsi: '', harga: 0, durasi_menit: 60, kategori: 'spa', fasilitas: '' }
   modalError.value = ''
   showModal.value = true
 }
 
 function openEdit(s) {
   editing.value = s.id
-  form.value = { nama: s.nama, deskripsi: s.deskripsi || '', harga: s.harga, durasi_menit: s.durasi_menit }
+    form.value = { nama: s.nama, deskripsi: s.deskripsi || '', harga: s.harga, durasi_menit: s.durasi_menit, kategori: s.kategori || 'spa', fasilitas: s.fasilitas || '' }
   modalError.value = ''
   showModal.value = true
 }
@@ -114,13 +142,14 @@ async function handleSave() {
   if (!form.value.nama.trim()) { modalError.value = 'Nama tidak boleh kosong'; return }
   if (!form.value.harga || form.value.harga <= 0) { modalError.value = 'Harga harus lebih dari 0'; return }
   if (!form.value.durasi_menit || form.value.durasi_menit < 30) { modalError.value = 'Durasi minimal 30 menit'; return }
-
   saving.value = true
   try {
     if (editing.value) {
       await updateService({ id: editing.value, ...form.value })
+      proxy.$toast('Layanan berhasil diupdate', 'success')
     } else {
       await createService(form.value)
+      proxy.$toast('Layanan berhasil ditambahkan', 'success')
     }
     closeModal()
     await fetchServices()
@@ -131,13 +160,19 @@ async function handleSave() {
   }
 }
 
-async function handleDelete(id) {
-  if (!confirm('Yakin ingin menghapus layanan ini?')) return
+function confirmDelete(id) {
+  deleteId.value = id
+  confirmOpen.value = true
+}
+
+async function doDelete() {
+  confirmOpen.value = false
   try {
-    await deleteService(id)
+    await deleteService(deleteId.value)
+    proxy.$toast('Layanan berhasil dihapus', 'success')
     await fetchServices()
   } catch (e) {
-    alert(e.message || 'Gagal menghapus layanan')
+    proxy.$toast(e.message || 'Gagal menghapus layanan', 'error')
   }
 }
 

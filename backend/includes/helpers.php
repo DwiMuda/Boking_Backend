@@ -23,11 +23,11 @@ function require_method($method) {
 }
 
 function find_or_fail($pdo, $table, $id, $columns = '*', $extra_cond = '') {
-    $allowed = ['users', 'services', 'bookings'];
+    $allowed = ['users', 'services', 'bookings', 'room_types', 'rooms'];
     if (!in_array($table, $allowed)) {
         json_response(null, 'Internal error', 500);
     }
-    $labels = ['users' => 'User', 'services' => 'Layanan', 'bookings' => 'Booking'];
+    $labels = ['users' => 'User', 'services' => 'Layanan', 'bookings' => 'Booking', 'room_types' => 'Tipe Kamar', 'rooms' => 'Kamar'];
     $label = $labels[$table] ?? 'Data';
     $sql = "SELECT {$columns} FROM {$table} WHERE id = ?";
     if ($extra_cond) $sql .= " AND {$extra_cond}";

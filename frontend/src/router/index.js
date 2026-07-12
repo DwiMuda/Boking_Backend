@@ -5,7 +5,27 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('../views/Services.vue')
+    component: () => import('../views/Home.vue')
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('../views/About.vue')
+  },
+  {
+    path: '/gallery',
+    name: 'Gallery',
+    component: () => import('../views/Gallery.vue')
+  },
+  {
+    path: '/testimonials',
+    name: 'Testimonials',
+    component: () => import('../views/Testimonials.vue')
+  },
+  {
+    path: '/offers',
+    name: 'Offers',
+    component: () => import('../views/Offers.vue')
   },
   {
     path: '/login',
@@ -32,6 +52,22 @@ const routes = [
     path: '/services/:id',
     name: 'ServiceDetail',
     component: () => import('../views/ServiceDetail.vue')
+  },
+  {
+    path: '/rooms',
+    name: 'Rooms',
+    component: () => import('../views/Rooms.vue')
+  },
+  {
+    path: '/rooms/:id',
+    name: 'RoomDetail',
+    component: () => import('../views/RoomDetail.vue')
+  },
+  {
+    path: '/booking-room/:roomTypeId',
+    name: 'RoomBooking',
+    component: () => import('../views/RoomBooking.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/booking/:serviceId',
@@ -73,6 +109,12 @@ const routes = [
     path: '/admin/reports',
     name: 'AdminReports',
     component: () => import('../views/admin/Reports.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/rooms',
+    name: 'AdminRoomTypes',
+    component: () => import('../views/admin/RoomTypes.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   {

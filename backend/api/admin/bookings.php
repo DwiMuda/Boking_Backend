@@ -9,7 +9,8 @@ try {
     $page = (int)($_GET['page'] ?? 1);
     $filters = [
         'status' => $_GET['status'] ?? '',
-        'search' => $_GET['search'] ?? ''
+        'search' => $_GET['search'] ?? '',
+        'tipe' => $_GET['tipe'] ?? ''
     ];
     $result = BookingService::getAllBookings($pdo, $filters, $page);
     $page = $result['page'];

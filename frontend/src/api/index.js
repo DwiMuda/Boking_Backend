@@ -105,4 +105,38 @@ export function getAdminReports(params = {}) {
   return api.get(`/api/admin/reports.php?${query}`)
 }
 
+// ── Room API ──
+export function getRooms() {
+  return api.get('/api/rooms/list.php')
+}
+
+export function getRoomDetail(id) {
+  return api.get(`/api/rooms/detail.php?id=${id}`)
+}
+
+export function getAvailableRooms(check_in, check_out, kapasitas = 0) {
+  return api.get(`/api/rooms/available.php?check_in=${check_in}&check_out=${check_out}&kapasitas=${kapasitas}`)
+}
+
+export function bookRoom(data) {
+  return api.post('/api/rooms/book.php', data)
+}
+
+export function createRoomType(data) {
+  return api.post('/api/rooms/create.php', data)
+}
+
+export function updateRoomType(data) {
+  return api.post('/api/rooms/update.php', data)
+}
+
+export function deleteRoomType(id) {
+  return api.post('/api/rooms/delete.php', { id })
+}
+
+// ── Services all (admin) ──
+export function getAllServices() {
+  return api.get('/api/services/list_all.php')
+}
+
 export default api
