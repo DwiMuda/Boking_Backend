@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     no_telp VARCHAR(20) DEFAULT '',
     role ENUM('user', 'admin') DEFAULT 'user',
     token VARCHAR(64) DEFAULT NULL,
+    reset_token VARCHAR(64) DEFAULT NULL,
+    reset_expires DATETIME DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 

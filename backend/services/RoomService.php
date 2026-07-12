@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/validators.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 class RoomService {
     public static function getRoomTypes($pdo) {
@@ -115,6 +116,26 @@ class RoomService {
         $stmt->execute([$booking_id]);
         $booking = $stmt->fetch();
         cast_types($booking, ['id' => 'integer', 'user_id' => 'integer', 'total_harga' => 'double', 'jumlah_tamu' => 'integer']);
+
+        $stmt = $pdo->prepare("SELECT email, nama FROM users WHERE id = ?");
+        $stmt->execute([$user['id']]);
+        $user_data = $stmt->fetch();
+
+        $email_data = [
+            'id' => $booking['id'],
+            'service_nama' => 'Room: ' . $booking['room_type_nama'] . ' #' . $booking['nomor_kamar'],
+            'tgl_booking' => $booking['check_in'] . ' s/d ' . $booking['check_out'],
+            'jam_booking' => 'Check-in: 14:00',
+            'total_harga' => $booking['total_harga'],
+        ];
+        email_booking_created($user_data['email'], $user_data['nama'], $email_data);
+
+        $stmt = $pdo->prepare("SELECT email FROM users WHERE role = 'admin' LIMIT 1");
+        $stmt->execute();
+        $admin = $stmt->fetch();
+        if ($admin) {
+            email_booking_created($admin['email'], 'Admin', $email_data);
+        }
 
         return $booking;
     }

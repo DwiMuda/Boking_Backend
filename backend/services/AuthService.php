@@ -61,6 +61,47 @@ class AuthService {
         $stmt->execute([$user_id]);
     }
 
+    public static function forgotPassword($pdo, $email) {
+        $email = validate_email(trim($email));
+
+        $stmt = $pdo->prepare("SELECT id, nama, email FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            return;
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $expires = date('Y-m-d H:i:s', strtotime('+60 minutes'));
+
+        $stmt = $pdo->prepare("UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?");
+        $stmt->execute([$token, $expires, $user['id']]);
+
+        email_reset_password($user['email'], $user['nama'], $token);
+    }
+
+    public static function resetPassword($pdo, $token, $new_password) {
+        $token = trim($token);
+        $new_password = validate_password($new_password);
+
+        $stmt = $pdo->prepare("SELECT id, email FROM users WHERE reset_token = ? AND reset_expires > NOW()");
+        $stmt->execute([$token]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            throw new AppException('Token tidak valid atau sudah kadaluarsa', 400);
+        }
+
+        $hashed = password_hash($new_password, PASSWORD_BCRYPT);
+        $stmt = $pdo->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?");
+        $stmt->execute([$hashed, $user['id']]);
+
+        $subject = "Password Berhasil Diubah - Sistem Booking";
+        $body = "<h2>Halo,</h2><p>Password akun kamu telah berhasil diubah.</p><p>Jika kamu tidak melakukan ini, segera hubungi admin.</p>";
+        send_email($user['email'], $subject, $body);
+    }
+
     public static function updateProfile($pdo, $user_id, $data) {
         $fields = [];
         $params = [];
