@@ -72,14 +72,15 @@ const password = ref('')
 const confirmPassword = ref('')
 
 async function handleRegister() {
+  authStore.clearError()
   if (password.value !== confirmPassword.value) {
     authStore.error = 'Password dan konfirmasi password tidak cocok'
     return
   }
-  const success = await authStore.register(nama.value, email.value, password.value, no_telp.value)
-  if (success) {
+  try {
+    await authStore.register(nama.value, email.value, password.value, no_telp.value)
     router.push('/verify-email')
-  }
+  } catch {}
 }
 </script>
 

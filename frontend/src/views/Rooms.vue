@@ -9,14 +9,14 @@
 
     <div v-else-if="error" class="alert alert-error">{{ error }}</div>
 
-    <div v-else-if="rooms.length === 0">
-      <AppEmptyState type="default" message="Belum ada kamar tersedia" />
+    <div v-else-if="filteredRooms.length === 0">
+      <AppEmptyState type="search" message="Kamar tidak ditemukan" />
     </div>
 
     <div v-else class="room-grid">
-      <div v-for="(r, i) in rooms" :key="r.id" class="room-card" v-observe :style="{ transitionDelay: `${i * 0.08}s` }" @click="$router.push(`/rooms/${r.id}`)">
+      <div v-for="(r, i) in filteredRooms" :key="r.id" class="room-card" v-observe :style="{ transitionDelay: `${i * 0.08}s` }" @click="$router.push(`/rooms/${r.id}`)">
         <div class="room-img">
-          <div class="room-placeholder" :style="{ backgroundImage: 'url(' + getPhoto(i) + ')' }">
+          <div class="room-placeholder" :style="{ backgroundImage: 'url(' + getPhoto(r, i) + ')' }">
             <div class="room-placeholder-overlay"></div>
           </div>
           <div class="room-capacity">
@@ -42,13 +42,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { getRooms } from '../api'
 import { BedDoubleIcon, UsersIcon } from '@lucide/vue'
 
+const route = useRoute()
 const rooms = ref([])
 const loading = ref(true)
 const error = ref('')
+
+const filteredRooms = computed(() => {
+  const type = route.query.type?.toLowerCase()
+  if (!type) return rooms.value
+  return rooms.value.filter(r => r.nama?.toLowerCase().includes(type))
+})
 const colors = ['#1B3A2F', '#2D5A45', '#3D7A5C', '#4E9A73', '#5C8A6B']
 const roomPhotos = [
   '/images/room-deluxe.jpg',
@@ -70,7 +78,11 @@ onMounted(async () => {
   }
 })
 
-function getPhoto(i) { return roomPhotos[i % roomPhotos.length]; }
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost/Boking_Backend'
+function getPhoto(r, i) { 
+  if (r && r.gambar) return `${apiBase}/${r.gambar}`
+  return roomPhotos[i % roomPhotos.length]; 
+}
 function formatHarga(h) { return new Intl.NumberFormat('id-ID').format(h); }
 </script>
 

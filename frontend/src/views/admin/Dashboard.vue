@@ -111,6 +111,7 @@
       <div class="flex gap-0-5 flex-wrap">
         <routerLink to="/admin/bookings" class="btn btn-primary">Kelola Booking</routerLink>
         <routerLink to="/admin/rooms" class="btn btn-gold">Kelola Kamar</routerLink>
+        <routerLink to="/admin/services" class="btn btn-secondary">Kelola Layanan</routerLink>
         <routerLink to="/admin/reports" class="btn btn-ghost">Lihat Laporan</routerLink>
       </div>
     </div>

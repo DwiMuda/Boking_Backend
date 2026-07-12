@@ -29,18 +29,6 @@ class ServiceService {
         return $services;
     }
 
-    public static function getByCategory($pdo) {
-        $stmt = $pdo->prepare("SELECT * FROM services WHERE is_active = 1 ORDER BY FIELD(kategori, 'spa', 'dining', 'other'), nama ASC");
-        $stmt->execute();
-        $services = $stmt->fetchAll();
-        $grouped = ['spa' => [], 'dining' => [], 'other' => []];
-        foreach ($services as $s) {
-            cast_types($s, ['id' => 'integer', 'harga' => 'double', 'durasi_menit' => 'integer', 'is_active' => 'boolean']);
-            $cat = $s['kategori'] ?? 'other';
-            $grouped[$cat][] = $s;
-        }
-        return $grouped;
-    }
 
     public static function getById($pdo, $id) {
         $id = validate_positive_int($id, 'ID layanan');

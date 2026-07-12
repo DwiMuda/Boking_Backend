@@ -5,7 +5,7 @@
     <div v-else-if="error" class="alert alert-error">{{ error }}</div>
 
     <div v-else-if="room" class="room-detail">
-      <div class="room-hero" :style="{ backgroundImage: 'url(' + getPhoto(room.id) + ')' }">
+      <div class="room-hero" :style="{ backgroundImage: 'url(' + getPhoto(room) + ')' }">
         <div class="room-hero-overlay-blur"></div>
         <div class="room-hero-content">
           <h1>{{ room.nama }}</h1>
@@ -74,7 +74,11 @@ onMounted(async () => {
   }
 })
 
-function getPhoto(id) { return roomPhotos[id % roomPhotos.length]; }
+const apiBase = import.meta.env.VITE_API_URL || 'http://localhost/Boking_Backend'
+function getPhoto(r) { 
+  if (r && r.gambar) return `${apiBase}/${r.gambar}`
+  return roomPhotos[(r?.id || 0) % roomPhotos.length]; 
+}
 function formatHarga(h) { return new Intl.NumberFormat('id-ID').format(h); }
 </script>
 

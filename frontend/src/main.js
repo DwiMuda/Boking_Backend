@@ -26,6 +26,9 @@ app.component('AppToast', AppToast)
 app.component('AppPagination', AppPagination)
 app.component('AppConfirm', AppConfirm)
 
+import VueApexCharts from "vue3-apexcharts";
+app.use(VueApexCharts);
+
 app.directive('observe', {
   mounted(el) {
     const observer = new IntersectionObserver(([entry]) => {

@@ -130,10 +130,7 @@ class BookingService {
         $stmt = $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ?");
         $stmt->execute([$id]);
 
-        $stmt = $pdo->prepare("SELECT email, nama FROM users WHERE id = ?");
-        $stmt->execute([$user['id']]);
-        $user_data = $stmt->fetch();
-        email_status_update($user_data['email'], $user_data['nama'], $id, 'cancelled');
+        email_status_update($user['email'], $user['nama'], $id, 'cancelled');
     }
 
     public static function getDetail($pdo, $user, $id) {
@@ -160,20 +157,35 @@ class BookingService {
         return $booking;
     }
 
-    public static function getMyBookings($pdo, $user_id, $page = 1) {
+    public static function getMyBookings($pdo, $user_id, $page = 1, $tipe = '') {
         $p = paginate($page);
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM bookings WHERE user_id = ?");
-        $stmt->execute([$user_id]);
-        $total = (int)$stmt->fetch()['total'];
-
-        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.durasi_menit, s.kategori,
+        $count_sql = "SELECT COUNT(*) as total FROM bookings WHERE user_id = ?";
+        $sql = "SELECT b.*, s.nama as service_nama, s.durasi_menit, s.kategori,
             rt.nama as room_type_nama, r.nomor_kamar
             FROM bookings b
             LEFT JOIN services s ON b.service_id = s.id
             LEFT JOIN rooms r ON b.room_id = r.id
             LEFT JOIN room_types rt ON r.room_type_id = rt.id
-            WHERE b.user_id = ? ORDER BY b.created_at DESC LIMIT ? OFFSET ?");
-        $stmt->execute([$user_id, $p['limit'], $p['offset']]);
+            WHERE b.user_id = ?";
+            
+        $params = [$user_id];
+        
+        if (!empty($tipe)) {
+            $count_sql .= " AND tipe_booking = ?";
+            $sql .= " AND b.tipe_booking = ?";
+            $params[] = $tipe;
+        }
+        
+        $stmt = $pdo->prepare($count_sql);
+        $stmt->execute($params);
+        $total = (int)$stmt->fetch()['total'];
+
+        $sql .= " ORDER BY b.created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $p['limit'];
+        $params[] = $p['offset'];
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         $bookings = $stmt->fetchAll();
 
         foreach ($bookings as &$b) {
