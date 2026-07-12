@@ -130,10 +130,7 @@ class BookingService {
         $stmt = $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ?");
         $stmt->execute([$id]);
 
-        $stmt = $pdo->prepare("SELECT email, nama FROM users WHERE id = ?");
-        $stmt->execute([$user['id']]);
-        $user_data = $stmt->fetch();
-        email_status_update($user_data['email'], $user_data['nama'], $id, 'cancelled');
+        email_status_update($user['email'], $user['nama'], $id, 'cancelled');
     }
 
     public static function getDetail($pdo, $user, $id) {

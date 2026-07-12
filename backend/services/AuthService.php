@@ -47,10 +47,9 @@ class AuthService {
 
         $hashed = password_hash($password, PASSWORD_BCRYPT);
         $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
 
-        $stmt = $pdo->prepare("INSERT INTO users (nama, email, password, no_telp, otp_code, otp_expires, email_verified_at) VALUES (?, ?, ?, ?, ?, ?, NULL)");
-        $stmt->execute([$nama, $email, $hashed, $no_telp, $otp, $expires]);
+        $stmt = $pdo->prepare("INSERT INTO users (nama, email, password, no_telp, otp_code, otp_expires, email_verified_at) VALUES (?, ?, ?, ?, ?, NOW() + INTERVAL 10 MINUTE, NULL)");
+        $stmt->execute([$nama, $email, $hashed, $no_telp, $otp]);
 
         email_verification_otp($email, $nama, $otp);
 
@@ -94,10 +93,9 @@ class AuthService {
         }
 
         $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $expires = date('Y-m-d H:i:s', strtotime('+10 minutes'));
 
-        $stmt = $pdo->prepare("UPDATE users SET otp_code = ?, otp_expires = ? WHERE id = ?");
-        $stmt->execute([$otp, $expires, $user['id']]);
+        $stmt = $pdo->prepare("UPDATE users SET otp_code = ?, otp_expires = NOW() + INTERVAL 10 MINUTE WHERE id = ?");
+        $stmt->execute([$otp, $user['id']]);
 
         email_verification_otp($user['email'], $user['nama'], $otp);
     }
@@ -105,47 +103,6 @@ class AuthService {
     public static function logout($pdo, $user_id) {
         $stmt = $pdo->prepare("UPDATE users SET token = NULL WHERE id = ?");
         $stmt->execute([$user_id]);
-    }
-
-    public static function forgotPassword($pdo, $email) {
-        $email = validate_email(trim($email));
-
-        $stmt = $pdo->prepare("SELECT id, nama, email FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-
-        if (!$user) {
-            return;
-        }
-
-        $token = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', strtotime('+60 minutes'));
-
-        $stmt = $pdo->prepare("UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?");
-        $stmt->execute([$token, $expires, $user['id']]);
-
-        email_reset_password($user['email'], $user['nama'], $token);
-    }
-
-    public static function resetPassword($pdo, $token, $new_password) {
-        $token = trim($token);
-        $new_password = validate_password($new_password);
-
-        $stmt = $pdo->prepare("SELECT id, email FROM users WHERE reset_token = ? AND reset_expires > NOW()");
-        $stmt->execute([$token]);
-        $user = $stmt->fetch();
-
-        if (!$user) {
-            throw new AppException('Token tidak valid atau sudah kadaluarsa', 400);
-        }
-
-        $hashed = password_hash($new_password, PASSWORD_BCRYPT);
-        $stmt = $pdo->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?");
-        $stmt->execute([$hashed, $user['id']]);
-
-        $subject = "Password Berhasil Diubah - Sistem Booking";
-        $body = "<h2>Halo,</h2><p>Password akun kamu telah berhasil diubah.</p><p>Jika kamu tidak melakukan ini, segera hubungi admin.</p>";
-        send_email($user['email'], $subject, $body);
     }
 
     public static function updateProfile($pdo, $user_id, $data) {

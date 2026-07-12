@@ -4,11 +4,11 @@ require_once __DIR__ . '/../includes/mailer.php';
 
 class RoomService {
     public static function getRoomTypes($pdo) {
-        $stmt = $pdo->prepare("SELECT * FROM room_types WHERE is_active = 1 ORDER BY harga_per_malam ASC");
+        $stmt = $pdo->prepare("SELECT rt.*, (SELECT COUNT(*) FROM rooms r WHERE r.room_type_id = rt.id AND r.status = 'available') as available_rooms FROM room_types rt WHERE rt.is_active = 1 ORDER BY rt.harga_per_malam ASC");
         $stmt->execute();
         $types = $stmt->fetchAll();
         foreach ($types as &$t) {
-            cast_types($t, ['id' => 'integer', 'harga_per_malam' => 'double', 'kapasitas' => 'integer', 'is_active' => 'boolean']);
+            cast_types($t, ['id' => 'integer', 'harga_per_malam' => 'double', 'kapasitas' => 'integer', 'is_active' => 'boolean', 'available_rooms' => 'integer']);
         }
         return $types;
     }

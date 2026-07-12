@@ -79,8 +79,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     INDEX idx_tipe_booking (tipe_booking)
 ) ENGINE=InnoDB;
 
-INSERT INTO users (nama, email, password, role) VALUES
-('Admin', 'admin@admin.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+INSERT INTO users (nama, email, password, role, email_verified_at) VALUES
+('Admin', 'admin@admin.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NOW());
 
 INSERT INTO services (nama, deskripsi, harga, durasi_menit, kategori) VALUES
 ('Classic Massage', 'Pijat relaksasi 60 menit untuk melepas penat setelah liburan', 150000, 60, 'spa'),

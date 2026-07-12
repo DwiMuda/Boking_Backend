@@ -43,9 +43,9 @@
             </select>
           </div>
           <div class="sw-action">
-            <router-link to="/services" class="btn btn-gold btn-full">
+            <button class="btn btn-gold btn-full" @click="doSearch">
               <SearchIcon :size="16" /> Cari
-            </router-link>
+            </button>
           </div>
         </div>
       </div>
@@ -203,7 +203,7 @@
             <router-link to="/about">Tentang</router-link>
             <router-link to="/gallery">Galeri</router-link>
             <router-link to="/offers">Promo</router-link>
-            <router-link to="/faq">FAQ</router-link>
+            <router-link to="/testimonials">Testimoni</router-link>
           </div>
           <div class="footer-contact">
             <h4>Kontak</h4>
@@ -222,12 +222,15 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   SparklesIcon, StarIcon, CalendarCheckIcon, InfoIcon, SearchIcon,
   DropletsIcon, UtensilsCrossedIcon, LeafIcon, WavesIcon, SunIcon, TreePineIcon,
   MapPinIcon, PhoneIcon, MailIcon, ClockIcon, ImageIcon,
   GlobeIcon, HeartIcon, Share2Icon
 } from '@lucide/vue'
+
+const router = useRouter()
 
 const tomorrow = computed(() => {
   const d = new Date()
@@ -239,6 +242,12 @@ const searchCheckIn = ref('')
 const searchCheckOut = ref('')
 const searchType = ref('')
 const testiIndex = ref(0)
+
+function doSearch() {
+  const params = {}
+  if (searchType.value) params.kategori = searchType.value
+  router.push({ path: '/services', query: params })
+}
 
 const features = [
   { icon: DropletsIcon, title: 'Infinity Pool', desc: 'Kolam renang tanpa batas dengan panorama laut lepas, dikelilingi kursi santai dan payung tropis.', bg: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,148,162,0.12))' },

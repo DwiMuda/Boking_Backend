@@ -44,6 +44,17 @@ function email_verification_otp($user_email, $user_nama, $otp) {
     return send_email($user_email, $subject, $body);
 }
 
+function email_status_update($user_email, $user_nama, $booking_id, $status) {
+    $label = ['pending' => 'Menunggu', 'confirmed' => 'Dikonfirmasi', 'completed' => 'Selesai', 'cancelled' => 'Dibatalkan'];
+    $subject = "Status Booking #{$booking_id} - " . ($label[$status] ?? $status);
+    $body = "
+        <h2>Halo $user_nama,</h2>
+        <p>Status booking <strong>#$booking_id</strong> telah berubah menjadi: <strong>{$label[$status]}</strong></p>
+        <p>Silakan cek halaman booking untuk detail lebih lanjut.</p>
+    ";
+    return send_email($user_email, $subject, $body);
+}
+
 function email_booking_created($user_email, $user_nama, $data) {
     $subject = "Konfirmasi Booking #{$data['id']} - Sistem Booking";
     $body = "
@@ -62,27 +73,3 @@ function email_booking_created($user_email, $user_nama, $data) {
     return send_email($user_email, $subject, $body);
 }
 
-function email_reset_password($user_email, $user_nama, $token) {
-    $reset_link = $_ENV['APP_URL'] . "/reset-password?token=$token";
-    $subject = "Reset Password - Sistem Booking";
-    $body = "
-        <h2>Halo $user_nama,</h2>
-        <p>Kami menerima permintaan reset password untuk akun kamu.</p>
-        <p>Klik link berikut untuk mereset password:</p>
-        <p><a href='$reset_link' style='display:inline-block;padding:12px 24px;background:#1a73e8;color:#fff;text-decoration:none;border-radius:6px'>Reset Password</a></p>
-        <p>Link ini berlaku selama 60 menit.</p>
-        <p>Jika kamu tidak meminta reset password, abaikan email ini.</p>
-    ";
-    return send_email($user_email, $subject, $body);
-}
-
-function email_status_update($user_email, $user_nama, $booking_id, $status) {
-    $label = ['pending' => 'Menunggu', 'confirmed' => 'Dikonfirmasi', 'completed' => 'Selesai', 'cancelled' => 'Dibatalkan'];
-    $subject = "Status Booking #{$booking_id} - " . ($label[$status] ?? $status);
-    $body = "
-        <h2>Halo $user_nama,</h2>
-        <p>Status booking <strong>#$booking_id</strong> telah berubah menjadi: <strong>{$label[$status]}</strong></p>
-        <p>Silakan cek halaman booking untuk detail lebih lanjut.</p>
-    ";
-    return send_email($user_email, $subject, $body);
-}

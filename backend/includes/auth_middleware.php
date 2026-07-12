@@ -14,7 +14,7 @@ function get_user_by_token($pdo) {
         json_response(null, 'Token tidak ditemukan. Silakan login.', 401);
     }
 
-    $stmt = $pdo->prepare("SELECT id, nama, email, no_telp, role FROM users WHERE token = ?");
+    $stmt = $pdo->prepare("SELECT id, nama, email, no_telp, role, created_at FROM users WHERE token = ?");
     $stmt->execute([$token]);
     $user = $stmt->fetch();
 
