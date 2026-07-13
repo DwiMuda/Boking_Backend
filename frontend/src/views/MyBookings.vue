@@ -73,9 +73,9 @@ const tipeFilter = ref('')
 async function fetchBookings() {
   loading.value = true
   try {
-    const res = await getMyBookings(page.value)
-    bookings.value = res.data.items
-    totalPages.value = res.data.pagination.total_pages
+    const res = await getMyBookings(page.value, tipeFilter.value)
+    bookings.value = res.data?.items || []
+    totalPages.value = res.data?.pagination?.total_pages || 1
   } catch (e) {
     proxy.$toast(e.message || 'Gagal memuat data booking', 'error')
   } finally {
@@ -169,4 +169,5 @@ function formatHarga(harga) {
   padding-top: 0.75rem;
   border-top: 1px solid var(--border-subtle);
 }
+
 </style>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/validators.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 class AuthService {
     public static function login($pdo, $email, $password) {
@@ -12,6 +13,10 @@ class AuthService {
 
         if (!$user || !password_verify($password, $user['password'])) {
             throw new AppException('Email atau password salah', 401);
+        }
+
+        if ($user['email_verified_at'] === null) {
+            throw new AppException('Email belum diverifikasi. Silakan cek email Anda.', 403);
         }
 
         $token = bin2hex(random_bytes(32));
@@ -41,19 +46,58 @@ class AuthService {
         }
 
         $hashed = password_hash($password, PASSWORD_BCRYPT);
+        $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $stmt = $pdo->prepare("INSERT INTO users (nama, email, password, no_telp, otp_code, otp_expires, email_verified_at) VALUES (?, ?, ?, ?, ?, NOW() + INTERVAL 10 MINUTE, NULL)");
+        $stmt->execute([$nama, $email, $hashed, $no_telp, $otp]);
+
+        email_verification_otp($email, $nama, $otp);
+
+        return ['email' => $email];
+    }
+
+    public static function verifyEmail($pdo, $email, $otp) {
+        $email = validate_email(trim($email));
+        $otp = trim($otp);
+
+        $stmt = $pdo->prepare("SELECT id, nama FROM users WHERE email = ? AND otp_code = ? AND otp_expires > NOW() AND email_verified_at IS NULL");
+        $stmt->execute([$email, $otp]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            throw new AppException('Kode verifikasi tidak valid atau sudah kadaluarsa', 400);
+        }
+
         $token = bin2hex(random_bytes(32));
+        $stmt = $pdo->prepare("UPDATE users SET email_verified_at = NOW(), otp_code = NULL, otp_expires = NULL, token = ? WHERE id = ?");
+        $stmt->execute([$token, $user['id']]);
 
-        $stmt = $pdo->prepare("INSERT INTO users (nama, email, password, no_telp, token) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$nama, $email, $hashed, $no_telp, $token]);
+        $stmt = $pdo->prepare("SELECT id, nama, email, no_telp, role FROM users WHERE id = ?");
+        $stmt->execute([$user['id']]);
+        $updated = $stmt->fetch();
+        $updated['id'] = (int)$updated['id'];
+        $updated['token'] = $token;
 
-        return [
-            'id' => (int)$pdo->lastInsertId(),
-            'nama' => $nama,
-            'email' => $email,
-            'no_telp' => $no_telp,
-            'role' => 'user',
-            'token' => $token
-        ];
+        return $updated;
+    }
+
+    public static function resendOtp($pdo, $email) {
+        $email = validate_email(trim($email));
+
+        $stmt = $pdo->prepare("SELECT id, nama, email FROM users WHERE email = ? AND email_verified_at IS NULL");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            throw new AppException('Email tidak ditemukan atau sudah diverifikasi', 400);
+        }
+
+        $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $stmt = $pdo->prepare("UPDATE users SET otp_code = ?, otp_expires = NOW() + INTERVAL 10 MINUTE WHERE id = ?");
+        $stmt->execute([$otp, $user['id']]);
+
+        email_verification_otp($user['email'], $user['nama'], $otp);
     }
 
     public static function logout($pdo, $user_id) {

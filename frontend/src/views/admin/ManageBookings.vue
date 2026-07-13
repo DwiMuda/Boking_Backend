@@ -80,20 +80,19 @@ const page = ref(1)
 const totalPages = ref(1)
 
 function getParams() {
-  return {
-    page: page.value,
-    status: statusFilter.value || undefined,
-    tipe: tipeFilter.value || undefined,
-    search: search.value || undefined
-  }
+  const params = { page: page.value }
+  if (statusFilter.value) params.status = statusFilter.value
+  if (tipeFilter.value) params.tipe = tipeFilter.value
+  if (search.value) params.search = search.value
+  return params
 }
 
 async function fetchBookings() {
   loading.value = true
   try {
     const res = await getAdminBookings(getParams())
-    bookings.value = res.data.items
-    totalPages.value = res.data.pagination.total_pages
+    bookings.value = res.data?.items || []
+    totalPages.value = res.data?.pagination?.total_pages || 1
   } catch (e) {
     proxy.$toast(e.message || 'Gagal memuat data', 'error')
   } finally {
@@ -136,3 +135,6 @@ function formatHarga(harga) {
   return new Intl.NumberFormat('id-ID').format(harga)
 }
 </script>
+
+<style scoped>
+</style>

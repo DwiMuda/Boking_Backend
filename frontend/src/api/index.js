@@ -1,10 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost/Boking_Backend',
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost/Boking_Backend'
 })
 
 api.interceptors.request.use(config => {
@@ -71,8 +68,10 @@ export function getBookingDetail(id) {
   return api.get(`/api/bookings/detail.php?id=${id}`)
 }
 
-export function getMyBookings(page = 1) {
-  return api.get(`/api/bookings/my_bookings.php?page=${page}`)
+export function getMyBookings(page = 1, tipe = '') {
+  const query = new URLSearchParams({ page })
+  if (tipe) query.append('tipe', tipe)
+  return api.get(`/api/bookings/my_bookings.php?${query.toString()}`)
 }
 
 export function cancelBooking(id) {
@@ -85,6 +84,14 @@ export function logout() {
 
 export function updateProfile(data) {
   return api.post('/api/auth/update.php', data)
+}
+
+export function verifyEmail(email, otp) {
+  return api.post('/api/auth/verify_email.php', { email, otp })
+}
+
+export function resendOtp(email) {
+  return api.post('/api/auth/resend_otp.php', { email })
 }
 
 export function getAdminBookings(params = {}) {
@@ -132,6 +139,12 @@ export function updateRoomType(data) {
 
 export function deleteRoomType(id) {
   return api.post('/api/rooms/delete.php', { id })
+}
+
+export function uploadFile(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return api.post('/api/upload.php', formData)
 }
 
 // ── Services all (admin) ──

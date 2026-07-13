@@ -8,13 +8,15 @@ function get_user_by_token($pdo) {
         if (count($parts) === 2) {
             $token = $parts[1];
         }
+    } elseif (isset($_GET['token'])) {
+        $token = $_GET['token'];
     }
 
     if (!$token) {
         json_response(null, 'Token tidak ditemukan. Silakan login.', 401);
     }
 
-    $stmt = $pdo->prepare("SELECT id, nama, email, no_telp, role FROM users WHERE token = ?");
+    $stmt = $pdo->prepare("SELECT id, nama, email, no_telp, role, created_at FROM users WHERE token = ?");
     $stmt->execute([$token]);
     $user = $stmt->fetch();
 

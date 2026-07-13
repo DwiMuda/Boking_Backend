@@ -52,13 +52,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { getServices } from '../api'
 import { SparklesIcon, UtensilsIcon, ClockIcon, BedDoubleIcon, LeafIcon, WineIcon, FlowerIcon, CoffeeIcon } from '@lucide/vue'
 
+const route = useRoute()
 const services = ref([])
 const loading = ref(true)
 const error = ref('')
-const activeCat = ref('spa')
+const activeCat = ref(route.query.kategori || 'spa')
 
 const categories = [
   { key: 'spa', label: 'Spa & Wellness', icon: SparklesIcon },

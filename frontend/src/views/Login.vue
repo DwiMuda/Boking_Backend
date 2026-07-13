@@ -67,7 +67,9 @@ watch(() => authStore.isLoggedIn, (val) => {
 })
 
 async function handleLogin() {
-  await authStore.login(email.value, password.value)
+  try {
+    await authStore.login(email.value, password.value)
+  } catch {}
 }
 </script>
 

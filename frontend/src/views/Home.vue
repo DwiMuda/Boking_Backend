@@ -1,66 +1,64 @@
 <template>
-  <div class="home">
-    <section class="hero section-dark">
-      <div class="hero-bg">
-        <div class="hero-image"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-pattern"></div>
-      </div>
-      <div class="hero-content">
-        <div class="hero-badge">
-          <SparklesIcon :size="14" />
-          Resort &amp; Spa &middot; Bali
+  <div class="home-luxury">
+    <!-- HERO SECTION -->
+    <section class="hero-luxury">
+      <div class="hero-bg" style="background-image: url('/images/pool-hero.jpg');"></div>
+      <div class="hero-overlay-luxury"></div>
+      
+      <div class="hero-content-luxury">
+        <div class="hero-badge-luxury animate-fade-up">
+          <SparklesIcon :size="14" /> <span>Resort & Spa · Bali</span>
         </div>
-        <h1 class="hero-title">Escape to <span class="text-gold">Paradise</span></h1>
-        <p class="hero-subtitle">Nikmati liburan mewah di tengah alam tropis. Kamar premium, spa eksklusif, dan fine dining dalam satu resort bintang lima.</p>
-        <div class="hero-cta">
-          <router-link to="/services" class="btn btn-gold btn-lg">
-            <CalendarCheckIcon :size="18" /> Pesan Sekarang
-          </router-link>
-          <router-link to="/about" class="btn btn-outline-light btn-lg">
-            <InfoIcon :size="18" /> Lihat Fasilitas
-          </router-link>
-        </div>
+        <h1 class="hero-title-luxury animate-fade-up delay-100">
+          Tenggelam dalam <br>
+          <span class="text-gold-luxury">Kemewahan Tropis</span>
+        </h1>
+        <p class="hero-subtitle-luxury animate-fade-up delay-200">
+          Sebuah pelarian sempurna dari hiruk-pikuk dunia. Rasakan layanan bintang lima, villa eksklusif, dan relaksasi tak terlupakan.
+        </p>
       </div>
 
-      <div class="search-widget">
-        <div class="sw-grid">
-          <div class="sw-field">
+      <!-- SEARCH BAR WIDGET (LIGHT) -->
+      <div class="search-widget-luxury animate-fade-up delay-400">
+        <div class="sw-grid-luxury">
+          <div class="sw-field-luxury">
             <label>Check-in</label>
             <input v-model="searchCheckIn" type="date" :min="tomorrow" />
           </div>
-          <div class="sw-field">
+          <div class="sw-field-luxury">
             <label>Check-out</label>
             <input v-model="searchCheckOut" type="date" :min="searchCheckIn || tomorrow" />
           </div>
-          <div class="sw-field">
-            <label>Tipe</label>
+          <div class="sw-field-luxury">
+            <label>Layanan</label>
             <select v-model="searchType">
-              <option value="">Semua</option>
-              <option value="room">Kamar</option>
-              <option value="spa">Spa</option>
-              <option value="dining">Dining</option>
+              <option value="">Pilih Semua</option>
+              <option value="room">Kamar & Villa</option>
+              <option value="spa">Spa & Relaksasi</option>
+              <option value="dining">Restoran</option>
             </select>
           </div>
-          <div class="sw-action">
-            <router-link to="/services" class="btn btn-gold btn-full">
-              <SearchIcon :size="16" /> Cari
-            </router-link>
+          <div class="sw-action-luxury">
+            <button class="btn-luxury-primary" @click="doSearch">
+              <SearchIcon :size="18" /> TEMUKAN
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="features-section">
+    <!-- FEATURES (KENAPA PILIH KAMI) -->
+    <section class="features-luxury bg-sand">
       <div class="container">
-        <div class="section-heading">
-          <h2>Kenapa Pilih <span class="text-accent">Kami</span>?</h2>
-          <p>Kami menghadirkan pengalaman resort terlengkap untuk liburan Anda</p>
+        <div class="section-heading-luxury text-center">
+          <span class="subheading">Pengalaman Kami</span>
+          <h2>Harmoni Alam & <span class="text-gold-luxury">Eksklusivitas</span></h2>
+          <p>Dirancang khusus untuk memanjakan setiap indra Anda</p>
         </div>
-        <div class="features-grid">
-          <div v-for="(f, i) in features" :key="i" class="feature-card" :style="{ transitionDelay: i * 0.1 + 's' }">
-            <div class="feature-icon" :style="{ background: f.bg }">
-              <component :is="f.icon" :size="24" />
+        <div class="features-grid-luxury">
+          <div v-for="(f, i) in features" :key="i" class="feature-card-luxury">
+            <div class="fc-icon-wrapper" :style="{ color: f.color, background: f.bg }">
+              <component :is="f.icon" :size="28" stroke-width="1.5" />
             </div>
             <h3>{{ f.title }}</h3>
             <p>{{ f.desc }}</p>
@@ -69,106 +67,81 @@
       </div>
     </section>
 
-    <section class="rooms-preview section-dark">
+    <!-- ROOM PREVIEW -->
+    <section class="rooms-preview-luxury bg-white">
       <div class="container">
-        <div class="section-heading light">
-          <h2>Kamar <span class="text-gold">Premium</span></h2>
-          <p>Pilih kamar impian Anda dengan pemandangan terbaik</p>
+        <div class="section-heading-luxury text-center">
+          <span class="subheading">Akomodasi</span>
+          <h2>Kamar & <span class="text-gold-luxury">Villa Premium</span></h2>
+          <p>Desain elegan berpadu dengan pemandangan menakjubkan</p>
         </div>
-        <div class="rp-grid">
-          <div class="rp-card" v-for="(r, i) in roomPreviews" :key="i">
-            <div class="rp-img" :style="{ backgroundImage: 'url(' + r.img + ')' }">
+        
+        <div class="rp-grid-luxury">
+          <div class="rp-card-luxury" v-for="(r, i) in roomPreviews" :key="i">
+            <div class="rp-image-wrapper">
+              <div class="rp-image" :style="{ backgroundImage: 'url(' + r.img + ')' }"></div>
               <div class="rp-badge">{{ r.badge }}</div>
             </div>
-            <div class="rp-body">
+            <div class="rp-content">
               <h3>{{ r.name }}</h3>
               <p>{{ r.desc }}</p>
-              <div class="rp-footer">
-                <span class="rp-price">{{ r.price }}</span>
-                <router-link :to="'/rooms?type=' + r.slug" class="btn btn-sm btn-gold">Lihat</router-link>
+              <div class="rp-bottom">
+                <div class="rp-price">
+                  <span class="price-val">{{ r.price }}</span>
+                  <span class="price-label">/ malam</span>
+                </div>
+                <router-link :to="'/rooms?type=' + r.slug" class="btn-luxury-outline">Lihat Detail</router-link>
               </div>
             </div>
           </div>
         </div>
+        <div class="text-center mt-3">
+          <router-link to="/rooms" class="btn-luxury-secondary">Lihat Seluruh Akomodasi</router-link>
+        </div>
       </div>
     </section>
 
-    <section class="stats-section">
+    <!-- TESTIMONIALS -->
+    <section class="testi-luxury bg-sand">
       <div class="container">
-        <div class="stats-grid">
-          <div v-for="(s, i) in stats" :key="i" class="stat-item">
-            <span class="stat-number">{{ s.number }}</span>
-            <span class="stat-label">{{ s.label }}</span>
+        <div class="testi-wrapper">
+          <div class="quote-icon">
+            <QuoteIcon :size="48" stroke-width="1" />
           </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="gallery-section">
-      <div class="container">
-        <div class="section-heading">
-          <h2>Galeri <span class="text-accent">Resort</span></h2>
-          <p>Momen terbaik dari sudut-sudut favorit resort kami</p>
-        </div>
-        <div class="gallery-grid">
-          <div v-for="(g, i) in gallery" :key="i" class="gallery-item">
-            <div class="gallery-img" :style="{ backgroundImage: 'url(' + g.img + ')' }">
-              <div class="gallery-caption">{{ g.label }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="text-center mt-2">
-          <router-link to="/gallery" class="btn btn-primary">
-            <ImageIcon :size="16" /> Lihat Semua Foto
-          </router-link>
-        </div>
-      </div>
-    </section>
-
-    <section class="testi-section section-dark">
-      <div class="container">
-        <div class="section-heading light">
-          <h2>Apa Kata <span class="text-gold">Tamu</span></h2>
-          <p>Pengalaman nyata dari tamu yang telah menginap</p>
-        </div>
-        <div class="testi-slider">
-          <div class="testi-track" :style="{ transform: 'translateX(-' + testiIndex * 100 + '%)' }">
-            <div v-for="(t, i) in testimonials" :key="i" class="testi-card">
-              <div class="star-rating lg">
-                <StarIcon v-for="n in 5" :key="n" :size="20" class="star-filled" />
-              </div>
-              <blockquote>"{{ t.quote }}"</blockquote>
-              <div class="testi-author">
-                <div class="testi-avatar">{{ t.name[0] }}</div>
-                <div>
-                  <strong>{{ t.name }}</strong>
-                  <span>{{ t.visit }}</span>
+          <div class="testi-content">
+            <transition name="fade" mode="out-in">
+              <div :key="testiIndex" class="testi-active">
+                <blockquote>"{{ testimonials[testiIndex].quote }}"</blockquote>
+                <div class="testi-author">
+                  <strong>{{ testimonials[testiIndex].name }}</strong>
+                  <span>{{ testimonials[testiIndex].visit }}</span>
                 </div>
               </div>
-            </div>
+            </transition>
           </div>
-        </div>
-        <div class="testi-dots">
-          <button v-for="(t, i) in testimonials" :key="i" :class="{ active: testiIndex === i }" @click="testiIndex = i"></button>
+          <div class="testi-nav">
+            <button v-for="(t, i) in testimonials" :key="i" :class="{ active: testiIndex === i }" @click="testiIndex = i"></button>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="offers-section">
+    <!-- OFFERS -->
+    <section class="offers-luxury bg-white">
       <div class="container">
-        <div class="section-heading">
-          <h2>Penawaran <span class="text-accent">Spesial</span></h2>
-          <p>Promo terbatas untuk pengalaman yang lebih berkesan</p>
+        <div class="section-heading-luxury text-center">
+          <span class="subheading">Penawaran Eksklusif</span>
+          <h2>Momen Spesial <span class="text-gold-luxury">Anda</span></h2>
         </div>
-        <div class="offers-grid">
-          <div v-for="(o, i) in specialOffers" :key="i" class="offer-card" :class="'offer-' + (i + 1)">
-            <div class="offer-badge" :class="o.badgeClass">{{ o.badge }}</div>
-            <div class="offer-body">
+        <div class="offers-grid-luxury">
+          <div v-for="(o, i) in specialOffers" :key="i" class="offer-card-luxury">
+            <div class="offer-card-inner">
+              <div class="oc-badge">{{ o.badge }}</div>
               <h3>{{ o.title }}</h3>
               <p>{{ o.desc }}</p>
-              <div class="offer-meta">
-                <span><ClockIcon :size="12" /> {{ o.valid }}</span>
-                <router-link to="/services" class="btn btn-sm btn-gold">Pesan</router-link>
+              <div class="oc-footer">
+                <span class="oc-valid"><ClockIcon :size="14"/> {{ o.valid }}</span>
+                <router-link to="/services" class="oc-link">Reservasi <ArrowRightIcon :size="16"/></router-link>
               </div>
             </div>
           </div>
@@ -176,44 +149,31 @@
       </div>
     </section>
 
-    <footer class="footer section-dark">
+    <footer class="footer-luxury">
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <div class="fb-icon">
-              <TreePineIcon :size="20" />
+            <div class="fb-logo">
+              <TreePineIcon :size="24" stroke-width="1.5" /> Tropical Resort
             </div>
-            <h3>Tropical Resort</h3>
-            <p>Resort &amp; Spa &middot; Bali</p>
-            <div class="fb-social">
-              <a href="#" aria-label="Instagram"><GlobeIcon :size="18" /></a>
-              <a href="#" aria-label="Facebook"><HeartIcon :size="18" /></a>
-              <a href="#" aria-label="Twitter"><Share2Icon :size="18" /></a>
-            </div>
+            <p>Destinasi kemewahan tropis yang memadukan keindahan alam dengan pelayanan elegan nan tak terlupakan.</p>
           </div>
           <div class="footer-links">
-            <h4>Layanan</h4>
-            <router-link to="/rooms">Kamar</router-link>
-            <router-link to="/services?kategori=spa">Spa</router-link>
-            <router-link to="/services?kategori=dining">Dining</router-link>
-            <router-link to="/services">Semua Layanan</router-link>
-          </div>
-          <div class="footer-links">
-            <h4>Informasi</h4>
-            <router-link to="/about">Tentang</router-link>
-            <router-link to="/gallery">Galeri</router-link>
-            <router-link to="/offers">Promo</router-link>
-            <router-link to="/faq">FAQ</router-link>
+            <h4>Eksplorasi</h4>
+            <router-link to="/rooms">Kamar & Villa</router-link>
+            <router-link to="/services?kategori=spa">Spa & Wellness</router-link>
+            <router-link to="/services?kategori=dining">Fine Dining</router-link>
+            <router-link to="/gallery">Galeri Resort</router-link>
           </div>
           <div class="footer-contact">
-            <h4>Kontak</h4>
-            <p><MapPinIcon :size="12" /> Jl. Tropis Indah No. 1, Bali</p>
-            <p><PhoneIcon :size="12" /> +62 812 3456 7890</p>
-            <p><MailIcon :size="12" /> info@tropicalresort.com</p>
+            <h4>Hubungi Kami</h4>
+            <p><MapPinIcon :size="14" /> Jl. Tropis Indah No. 1, Bali</p>
+            <p><PhoneIcon :size="14" /> +62 812 3456 7890</p>
+            <p><MailIcon :size="14" /> info@tropicalresort.com</p>
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2026 Tropical Resort. All rights reserved.</p>
+          <p>&copy; 2026 Tropical Resort & Spa. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -222,12 +182,14 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
-  SparklesIcon, StarIcon, CalendarCheckIcon, InfoIcon, SearchIcon,
-  DropletsIcon, UtensilsCrossedIcon, LeafIcon, WavesIcon, SunIcon, TreePineIcon,
-  MapPinIcon, PhoneIcon, MailIcon, ClockIcon, ImageIcon,
-  GlobeIcon, HeartIcon, Share2Icon
+  SparklesIcon, SearchIcon, DropletsIcon, UtensilsCrossedIcon, LeafIcon, WavesIcon, 
+  SunIcon, TreePineIcon, MapPinIcon, PhoneIcon, MailIcon, ClockIcon, QuoteIcon,
+  ArrowRightIcon
 } from '@lucide/vue'
+
+const router = useRouter()
 
 const tomorrow = computed(() => {
   const d = new Date()
@@ -240,55 +202,48 @@ const searchCheckOut = ref('')
 const searchType = ref('')
 const testiIndex = ref(0)
 
+function doSearch() {
+  const params = {}
+  if (searchType.value === 'room') {
+    router.push({ path: '/rooms' })
+    return
+  }
+  if (searchType.value) params.kategori = searchType.value
+  router.push({ path: '/services', query: params })
+}
+
 const features = [
-  { icon: DropletsIcon, title: 'Infinity Pool', desc: 'Kolam renang tanpa batas dengan panorama laut lepas, dikelilingi kursi santai dan payung tropis.', bg: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,148,162,0.12))' },
-  { icon: SparklesIcon, title: 'Spa & Wellness', desc: 'Perawatan tubuh tradisional Bali dan modern oleh terapis profesional di ruang spa privat.', bg: 'linear-gradient(135deg, rgba(201,161,92,0.12), rgba(236,201,75,0.12))' },
-  { icon: UtensilsCrossedIcon, title: 'Fine Dining', desc: 'Restoran dengan menu internasional, masakan khas Bali, dan private dining di tepi kolam.', bg: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(251,146,60,0.12))' },
-  { icon: LeafIcon, title: 'Taman Tropis', desc: 'Area hijau seluas 2 hektar dengan jalur jogging, gazebo, dan koleksi tanaman tropis langka.', bg: 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(74,222,128,0.12))' },
-  { icon: SunIcon, title: 'Private Beach', desc: 'Pantai pribadi berpasir putih dengan water sports, snorkeling, dan area sunbathing eksklusif.', bg: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.12))' },
-  { icon: WavesIcon, title: 'Sunset Cruise', desc: 'Pelayaran sore eksklusif mengelilingi teluk sambil menikmati hidangan ringan dan koktail.', bg: 'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.12))' },
+  { icon: DropletsIcon, title: 'Infinity Pool', desc: 'Kolam renang tanpa batas dengan panorama laut lepas, dilengkapi layanan butler pribadi.', color: '#059669', bg: '#ecfdf5' },
+  { icon: SparklesIcon, title: 'Spa & Wellness', desc: 'Perawatan tubuh tradisional Bali dan terapi holistik di ruang spa privat kami.', color: '#d97706', bg: '#fffbeb' },
+  { icon: UtensilsCrossedIcon, title: 'Fine Dining', desc: 'Mahakarya kuliner dari chef bintang Michelin dengan pemandangan matahari terbenam.', color: '#dc2626', bg: '#fef2f2' },
+  { icon: LeafIcon, title: 'Taman Tropis', desc: 'Area hijau seluas 2 hektar dengan berbagai koleksi tanaman tropis eksotis yang asri.', color: '#16a34a', bg: '#f0fdf4' },
+  { icon: SunIcon, title: 'Private Beach', desc: 'Pantai pribadi berpasir putih eksklusif khusus bagi para tamu resort.', color: '#ea580c', bg: '#fff7ed' },
+  { icon: WavesIcon, title: 'Sunset Cruise', desc: 'Pelayaran sore melintasi teluk sambil menikmati koktail dan hidangan ringan.', color: '#7c3aed', bg: '#f5f3ff' },
 ]
 
 const roomPreviews = [
-  { name: 'Deluxe Ocean Suite', desc: 'Kamar luas dengan balkon pribadi menghadap langsung ke laut lepas.', price: 'Rp 2.500.000/malam', badge: 'Best Seller', slug: 'deluxe', img: '/images/room-deluxe.jpg' },
-  { name: 'Premium Garden Villa', desc: 'Villa pribadi di tengah taman tropis dengan kolam renang eksklusif.', price: 'Rp 4.200.000/malam', badge: 'Premium', slug: 'premium', img: '/images/villa-pool.jpg' },
-  { name: 'Family Suite', desc: 'Suite dua kamar dengan ruang keluarga luas, cocok untuk liburan keluarga.', price: 'Rp 3.800.000/malam', badge: 'Family', slug: 'family', img: '/images/room-family.jpg' },
-]
-
-const stats = [
-  { number: '50+', label: 'Kamar Premium' },
-  { number: '5', label: 'Restoran' },
-  { number: '98%', label: 'Kepuasan Tamu' },
-  { number: '12', label: 'Tahun Berdiri' },
-]
-
-const gallery = [
-  { label: 'Kolam Renang Infinity', img: '/images/pool-aerial.jpg' },
-  { label: 'Kamar Deluxe Suite', img: '/images/suite-living.jpg' },
-  { label: 'Restoran Tepi Pantai', img: '/images/restaurant.jpg' },
-  { label: 'Spa Tradisional', img: '/images/spa.jpg' },
-  { label: 'Sunset di Private Beach', img: '/images/sunset-beach.jpg' },
-  { label: 'Taman Tropis Resort', img: '/images/garden.jpg' },
+  { name: 'Deluxe Ocean Suite', desc: 'Kamar luas dengan balkon pribadi menghadap langsung ke panorama Samudra Hindia.', price: 'Rp 2.500.000', badge: 'Terfavorit', slug: 'deluxe', img: '/images/room-deluxe.jpg' },
+  { name: 'Premium Garden Villa', desc: 'Villa tersembunyi di tengah taman tropis dengan kolam renang pribadi eksklusif.', price: 'Rp 4.200.000', badge: 'Villa', slug: 'premium', img: '/images/villa-pool.jpg' },
+  { name: 'Royal Family Suite', desc: 'Suite dua kamar megah dengan ruang keluarga luas, dirancang untuk kebersamaan elegan.', price: 'Rp 3.800.000', badge: 'Keluarga', slug: 'family', img: '/images/room-family.jpg' },
 ]
 
 const testimonials = [
-  { name: 'Sarah Wijaya', quote: 'Pengalaman menginap yang luar biasa. Pemandangan dari Suite Room bikin takjub! Pelayanan ramah dan fasilitas lengkap.', visit: 'Menginap 3 malam, Maret 2026' },
-  { name: 'Budi Santoso', quote: 'Spa-nya juara! Aromatherapy khas Bali bikin badan terasa seperti lahir kembali. Pasti balik lagi.', visit: 'Menginap 2 malam, April 2026' },
-  { name: 'Maya Putri', quote: 'Private dinner di tepi kolam — romantis banget. Recommended banget buat honeymoon atau anniversary!', visit: 'Menginap 4 malam, Februari 2026' },
-  { name: 'Andre Kurniawan', quote: 'Resort cocok banget buat quality time keluarga. Anak-anak betah di kids club dan kolam renang.', visit: 'Menginap 5 malam, Januari 2026' },
+  { name: 'Sarah Wijaya', quote: 'Setiap detiknya terasa magis. Arsitektur, layanan butler, dan ketenangan yang ditawarkan sangat luar biasa. Ini bukan sekadar menginap, tapi pengalaman spiritual.', visit: 'Maret 2026' },
+  { name: 'Budi Santoso', quote: 'Menu fine dining-nya adalah karya seni. Spa tradisional Bali benar-benar menghidupkan kembali energi saya setelah berbulan-bulan bekerja keras.', visit: 'April 2026' },
+  { name: 'Maya Putri', quote: 'Sempurna untuk bulan madu. Privasi di Garden Villa sangat terjaga, dan staf sangat memperhatikan setiap detail kecil kebutuhan kami.', visit: 'Februari 2026' }
 ]
 
 const specialOffers = [
-  { title: 'Honeymoon Package', desc: 'Suite Room 3 malam + candle light dinner + spa couple + bunga segar setiap hari', badge: '20% OFF', badgeClass: 'badge-warm', valid: 'Berlaku s.d 30 Sep 2026' },
-  { title: 'Stay 4 Pay 3', desc: 'Beli 4 malam, bayar 3 malam untuk semua tipe kamar. Termasuk sarapan gratis!', badge: 'BONUS', badgeClass: 'badge-gold', valid: 'Berlaku s.d 31 Des 2026' },
-  { title: 'Spa & Dine Combo', desc: 'Paket spa 2 jam + dinner 3-course with wine pairing dengan harga spesial', badge: '35% OFF', badgeClass: 'badge-warm', valid: 'Berlaku s.d 15 Okt 2026' },
+  { title: 'Honeymoon Bliss', desc: 'Menginap 3 malam di Villa, gratis romantic dinner & couple spa.', badge: 'Eksklusif', valid: 'S.d 30 Sep 2026' },
+  { title: 'Extended Paradise', desc: 'Nikmati malam ke-4 secara cuma-cuma untuk setiap pemesanan 3 malam.', badge: 'Promo Spesial', valid: 'S.d 31 Des 2026' },
+  { title: 'Culinary Journey', desc: 'Diskon 35% untuk paket 5-course dinner dengan wine pairing kelas dunia.', badge: 'Terbatas', valid: 'S.d 15 Okt 2026' },
 ]
 
 let testiTimer
 onMounted(() => {
   testiTimer = setInterval(() => {
     testiIndex.value = (testiIndex.value + 1) % testimonials.length
-  }, 5000)
+  }, 6000)
 })
 onUnmounted(() => {
   clearInterval(testiTimer)
@@ -296,625 +251,619 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.home { overflow-x: hidden; }
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
-.hero {
+/* GLOBAL LUXURY VARS */
+.home-luxury {
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  --color-gold: #C9A15C;
+  --color-gold-hover: #b38d4a;
+  --color-sand: #FAFAF8;
+  --color-dark: #1C2026;
+  --color-gray: #6B7280;
+  
+  font-family: var(--font-sans);
+  color: var(--color-dark);
+  overflow-x: hidden;
+  background: #ffffff;
+}
+
+.bg-sand { background-color: var(--color-sand); }
+.bg-white { background-color: #ffffff; }
+
+.text-gold-luxury { color: var(--color-gold); font-style: italic; }
+
+/* ANIMATIONS */
+.animate-fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-400 { animation-delay: 0.4s; }
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* HERO SECTION */
+.hero-luxury {
   position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6rem 2rem 4rem;
-  overflow: hidden;
+  padding: 8rem 2rem 6rem;
 }
 
 .hero-bg {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-}
-
-.hero-image {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: url('/images/pool-hero.jpg');
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  animation: hero-zoom 20s ease-in-out infinite alternate;
+  background-position: center 30%;
+  animation: heroZoom 25s ease-in-out infinite alternate;
 }
 
-@keyframes hero-zoom {
+@keyframes heroZoom {
   0% { transform: scale(1); }
-  100% { transform: scale(1.08); }
+  100% { transform: scale(1.1); }
 }
 
-.hero-overlay {
+.hero-overlay-luxury {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(135deg, rgba(8,12,28,0.7) 0%, rgba(8,12,28,0.4) 50%, transparent 100%),
-    linear-gradient(to top, rgba(8,12,28,0.85) 0%, transparent 50%);
+  background: linear-gradient(180deg, rgba(28,32,38,0.2) 0%, rgba(28,32,38,0.7) 100%);
 }
 
-.hero-pattern {
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 120px;
-  pointer-events: none;
-  background: #0F1117;
-  clip-path: ellipse(70% 100% at 50% 100%);
-}
-
-.hero-content {
+.hero-content-luxury {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   text-align: center;
-  max-width: 750px;
+  max-width: 800px;
+  color: white;
 }
 
-.hero-badge {
+.hero-badge-luxury {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 1.2rem;
-  border-radius: 9999px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.7);
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-  backdrop-filter: blur(8px);
-}
-
-.hero-title {
-  font-size: 4rem;
-  font-weight: 800;
-  color: white;
-  line-height: 1.1;
-  margin-bottom: 1.25rem;
-  letter-spacing: -0.02em;
-}
-
-.text-gold { color: #C9A15C; }
-
-.hero-subtitle {
-  color: rgba(255,255,255,0.55);
-  font-size: 1.125rem;
-  line-height: 1.7;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
   margin-bottom: 2rem;
 }
 
-.hero-cta {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+.hero-title-luxury {
+  font-family: var(--font-serif);
+  font-size: 4.5rem;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
-.hero-cta .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+.hero-subtitle-luxury {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  font-weight: 300;
+  opacity: 0.9;
+  max-width: 650px;
+  margin: 0 auto;
 }
 
-.search-widget {
+/* SEARCH WIDGET */
+.search-widget-luxury {
   position: relative;
-  z-index: 2;
-  margin-top: 2rem;
+  z-index: 3;
+  margin-top: 4rem;
   width: 100%;
-  max-width: 800px;
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.4);
-  transform: translateY(60px);
+  max-width: 900px;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
 }
 
-.sw-grid {
+.sw-grid-luxury {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr auto;
-  gap: 1rem;
-  align-items: end;
-}
-
-.sw-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.sw-field label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.sw-field input,
-.sw-field select {
-  padding: 0.65rem 1rem;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  font-size: 0.85rem;
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.85);
-  transition: border-color 0.2s ease;
-  outline: none;
-}
-
-.sw-field input:focus,
-.sw-field select:focus {
-  border-color: #C9A15C;
-  box-shadow: 0 0 0 3px rgba(201,161,92,0.12);
-}
-
-.sw-field input::placeholder,
-.sw-field select::placeholder { color: rgba(255,255,255,0.2); }
-
-.sw-field select option { color: #111; background: #fff; }
-
-.sw-action { min-width: 110px; }
-
-.sw-action .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  height: 100%;
-  justify-content: center;
-}
-
-@media (max-width: 700px) {
-  .sw-grid { grid-template-columns: 1fr 1fr; }
-  .sw-action { grid-column: 1 / -1; }
-}
-
-.features-section { padding: 6rem 0 5rem; background: #0F1117; }
-
-.section-heading {
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto 3rem;
-}
-
-.section-heading h2 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-}
-
-.section-heading p {
-  color: rgba(255,255,255,0.4);
-  font-size: 1rem;
-}
-
-.section-heading.light h2 { color: white; }
-.section-heading.light p { color: rgba(255,255,255,0.45); }
-
-.text-accent { color: #2D5A45; }
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
-}
-
-.feature-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 20px;
-  padding: 2rem;
-  transition: all 0.3s ease;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeUp 0.6s ease forwards;
-}
-
-@keyframes fadeUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.feature-card:hover {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.08);
-  transform: translateY(-4px);
-}
-
-.feature-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1.25rem;
-  color: white;
-}
-
-.feature-card h3 { color: white; font-size: 1.1rem; margin-bottom: 0.5rem; }
-.feature-card p { color: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.6; }
-
-.rooms-preview { padding: 5rem 0; background: #0A0C18; }
-
-.rp-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.rp-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 20px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.rp-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(255,255,255,0.08);
-}
-
-.rp-img {
-  height: 200px;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-.rp-badge {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  padding: 0.25rem 0.75rem;
-  background: rgba(201,161,92,0.9);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 600;
-  border-radius: 9999px;
-  backdrop-filter: blur(4px);
-}
-
-.rp-body { padding: 1.5rem; }
-
-.rp-body h3 { color: white; font-size: 1rem; margin-bottom: 0.4rem; }
-.rp-body p { color: rgba(255,255,255,0.4); font-size: 0.8rem; line-height: 1.5; margin-bottom: 1rem; }
-
-.rp-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.rp-price {
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: #C9A15C;
-}
-
-.stats-section {
-  padding: 4rem 0;
-  background: #0F1117;
-  border-top: 1px solid rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.02);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  text-align: center;
-}
-
-.stat-item { display: flex; flex-direction: column; gap: 0.25rem; }
-
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: white;
-  letter-spacing: -0.02em;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.35);
-  font-weight: 500;
-}
-
-.gallery-section { padding: 5rem 0; background: #0F1117; }
-
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-}
-
-.gallery-item {
-  border-radius: 16px;
-  overflow: hidden;
-  aspect-ratio: 4/3;
-  cursor: pointer;
-  animation: fadeUp 0.6s ease forwards;
-}
-
-.gallery-img {
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.5s ease;
-  position: relative;
-  display: flex;
   align-items: flex-end;
 }
 
-.gallery-item:hover .gallery-img {
-  transform: scale(1.08);
+.sw-field-luxury {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.gallery-caption {
-  width: 100%;
-  padding: 1rem;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+.sw-field-luxury label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sw-field-luxury input,
+.sw-field-luxury select {
+  padding: 0.8rem 0;
+  border: none;
+  border-bottom: 1px solid #E5E7EB;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  color: var(--color-dark);
+  background: transparent;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.sw-field-luxury input:focus,
+.sw-field-luxury select:focus {
+  border-bottom-color: var(--color-gold);
+}
+
+.btn-luxury-primary {
+  background: var(--color-gold);
   color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-luxury-primary:hover {
+  background: var(--color-gold-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(201,161,92,0.3);
+}
+
+/* SECTION HEADINGS */
+.section-heading-luxury {
+  margin-bottom: 4rem;
+}
+
+.section-heading-luxury .subheading {
+  display: block;
   font-size: 0.8rem;
   font-weight: 600;
-}
-
-@media (max-width: 600px) {
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-.testi-section { padding: 5rem 0; background: #0A0C18; }
-
-.testi-slider { overflow: hidden; max-width: 650px; margin: 0 auto; }
-
-.testi-track { display: flex; transition: transform 0.6s ease; }
-
-.testi-card {
-  min-width: 100%;
-  text-align: center;
-  padding: 2rem 1.5rem;
-}
-
-.star-rating {
-  display: flex;
-  justify-content: center;
-  gap: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--color-gray);
   margin-bottom: 1rem;
 }
 
-.star-filled { color: #C9A15C; fill: #C9A15C; }
+.section-heading-luxury h2 {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-bottom: 1rem;
+}
 
-.testi-card blockquote {
-  font-size: 1.25rem;
-  line-height: 1.7;
-  color: rgba(255,255,255,0.8);
-  font-weight: 500;
-  font-style: italic;
+.section-heading-luxury p {
+  font-size: 1.1rem;
+  color: var(--color-gray);
+}
+
+.text-center { text-align: center; }
+
+/* FEATURES */
+.features-luxury { padding: 8rem 0 6rem; }
+.features-grid-luxury {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
+}
+
+.feature-card-luxury {
+  background: white;
+  padding: 2.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  transition: all 0.4s ease;
+  border: 1px solid #f3f4f6;
+  text-align: center;
+}
+
+.feature-card-luxury:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}
+
+.fc-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 1.5rem;
 }
 
-.testi-author {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+.feature-card-luxury h3 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
 }
 
-.testi-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #2D5A45, #5C8A6B);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.1rem;
+.feature-card-luxury p {
+  color: var(--color-gray);
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
-.testi-author div strong { display: block; color: white; font-size: 0.85rem; }
-.testi-author div span { display: block; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
-
-.testi-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.testi-dots button {
-  width: 10px;
-  height: 10px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.testi-dots button.active {
-  background: #C9A15C;
-  border-color: #C9A15C;
-  width: 28px;
-  border-radius: 5px;
-}
-
-.offers-section { padding: 5rem 0; background: #0F1117; }
-
-.offers-grid {
+/* ROOMS */
+.rooms-preview-luxury { padding: 6rem 0; }
+.rp-grid-luxury {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.offer-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  transition: all 0.3s ease;
-  animation: fadeUp 0.6s ease forwards;
-}
-
-.offer-card:hover {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(201,161,92,0.2);
-  transform: translateY(-4px);
-}
-
-.offer-badge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.3rem 0.8rem;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.badge-warm { background: rgba(239,68,68,0.15); color: #EF4444; }
-.badge-gold { background: rgba(201,161,92,0.15); color: #C9A15C; }
-
-.offer-body { padding: 1.75rem; }
-
-.offer-body h3 { color: white; font-size: 1.1rem; margin-bottom: 0.5rem; }
-.offer-body p { color: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.6; margin-bottom: 1rem; }
-
-.offer-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.3);
-}
-
-.offer-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
-
-.footer { padding: 4rem 0 2rem; background: #080C1C; }
-
-.footer-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-bottom: 3rem;
 }
 
-.fb-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #2D5A45, #5C8A6B);
-  border-radius: 12px;
-  color: white;
-  margin-bottom: 0.75rem;
+.rp-card-luxury {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: all 0.4s ease;
 }
 
-.footer-brand h3 { color: white; font-size: 1.25rem; }
-.footer-brand p { color: #C9A15C; font-size: 0.85rem; margin-top: 0.25rem; }
-
-.fb-social {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+.rp-card-luxury:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-.fb-social a {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
-  color: rgba(255,255,255,0.35);
-  transition: all 0.2s ease;
+.rp-image-wrapper {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
 }
 
-.fb-social a:hover {
-  background: rgba(201,161,92,0.15);
-  color: #C9A15C;
+.rp-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.8s ease;
 }
 
-.footer-links h4,
-.footer-contact h4 {
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 0.75rem;
+.rp-card-luxury:hover .rp-image {
+  transform: scale(1.08);
+}
+
+.rp-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: white;
+  color: var(--color-dark);
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 1px;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.footer-links a,
-.footer-contact p {
+.rp-content { padding: 2rem; }
+.rp-content h3 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.rp-content p {
+  color: var(--color-gray);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.rp-bottom {
   display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: rgba(255,255,255,0.3);
-  font-size: 0.85rem;
-  margin-bottom: 0.35rem;
-  text-decoration: none;
-  transition: color 0.2s ease;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
-.footer-links a:hover { color: #C9A15C; }
+.rp-price .price-val {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+.rp-price .price-label {
+  font-size: 0.8rem;
+  color: var(--color-gray);
+}
 
-.footer-bottom {
-  border-top: 1px solid rgba(255,255,255,0.04);
-  padding-top: 1.5rem;
+.btn-luxury-outline {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--color-dark);
+  color: var(--color-dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-luxury-outline:hover {
+  background: var(--color-dark);
+  color: white;
+}
+
+.btn-luxury-secondary {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: var(--color-dark);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+.btn-luxury-secondary:hover { background: #333; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+/* TESTIMONIALS */
+.testi-luxury {
+  padding: 8rem 0;
   text-align: center;
 }
 
-.footer-bottom p { color: rgba(255,255,255,0.4); font-size: 0.75rem; }
-
-@media (max-width: 768px) {
-  .hero-title { font-size: 2.5rem; }
-  .hero-subtitle { font-size: 1rem; }
-  .hero-cta { flex-direction: column; align-items: center; }
-  .hero-cta .btn { width: 100%; max-width: 280px; }
-  .search-widget { padding: 1rem; transform: translateY(40px); }
-  .sw-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-  .sw-action { grid-column: 1 / -1; }
-  .features-section { padding: 4rem 0 3rem; }
-  .features-grid { grid-template-columns: 1fr; }
-  .rp-grid { grid-template-columns: 1fr; }
-  .rp-img { height: 220px; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-  .gallery-section { padding: 3rem 0; }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-  .testi-section { padding: 3rem 0; }
-  .testi-card blockquote { font-size: 1.05rem; }
-  .offers-section { padding: 3rem 0; }
-  .offers-grid { grid-template-columns: 1fr; }
-  .footer { padding: 2.5rem 0 1.5rem; }
-  .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-  .section-heading h2 { font-size: 1.75rem; }
+.testi-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-@media (max-width: 480px) {
-  .hero-title { font-size: 1.75rem; }
-  .hero { min-height: 85vh; padding: 5rem 1.25rem 3rem; }
-  .hero-subtitle { font-size: 0.9rem; }
-  .hero-badge { font-size: 0.7rem; }
-  .sw-grid { grid-template-columns: 1fr; }
-  .search-widget { transform: translateY(30px); }
-  .gallery-grid { grid-template-columns: 1fr 1fr; }
-  .stats-grid { gap: 1rem; }
-  .stat-number { font-size: 1.75rem; }
+.quote-icon {
+  color: var(--color-gold);
+  opacity: 0.4;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.testi-active blockquote {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  line-height: 1.5;
+  color: var(--color-dark);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.testi-author strong {
+  display: block;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+.testi-author span {
+  font-size: 0.9rem;
+  color: var(--color-gray);
+}
+
+.testi-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 3rem;
+}
+
+.testi-nav button {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.testi-nav button.active {
+  background: var(--color-gold);
+  transform: scale(1.5);
+}
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.5s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* OFFERS */
+.offers-luxury { padding: 6rem 0 8rem; }
+.offers-grid-luxury {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.offer-card-luxury {
+  background: var(--color-sand);
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+.offer-card-luxury:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}
+
+.offer-card-inner {
+  border: 1px dashed #d1d5db;
+  padding: 2.5rem 2rem;
+  border-radius: 4px;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.oc-badge {
+  position: absolute;
+  top: -0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-gold);
+  color: white;
+  padding: 0.4rem 1.2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.offer-card-inner h3 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.offer-card-inner p {
+  color: var(--color-gray);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  flex-grow: 1;
+}
+
+.oc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.oc-valid {
+  font-size: 0.8rem;
+  color: var(--color-gray);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.oc-link {
+  color: var(--color-gold);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: gap 0.3s ease;
+}
+.oc-link:hover { gap: 0.7rem; }
+
+/* FOOTER */
+.footer-luxury {
+  background: var(--color-dark);
+  color: white;
+  padding: 5rem 0 2rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 4rem;
+  margin-bottom: 4rem;
+}
+
+.fb-logo {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.footer-brand p {
+  color: rgba(255,255,255,0.6);
+  line-height: 1.8;
+  max-width: 400px;
+}
+
+.footer-luxury h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.footer-links a {
+  display: block;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  margin-bottom: 0.8rem;
+  transition: color 0.3s ease;
+}
+.footer-links a:hover { color: var(--color-gold); }
+
+.footer-contact p {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 2rem;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.85rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .sw-grid-luxury { grid-template-columns: 1fr 1fr; }
+  .sw-action-luxury { grid-column: 1 / -1; }
+  .hero-title-luxury { font-size: 3rem; }
+  .rp-grid-luxury { grid-template-columns: 1fr; max-width: 500px; margin-inline: auto; }
+  .offers-grid-luxury { grid-template-columns: 1fr; max-width: 500px; margin-inline: auto; }
+  .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .section-heading-luxury h2 { font-size: 2.2rem; }
+}
+
+@media (max-width: 600px) {
+  .sw-grid-luxury { grid-template-columns: 1fr; }
+  .hero-title-luxury { font-size: 2.5rem; }
+  .testi-active blockquote { font-size: 1.3rem; }
+  .hero-luxury { padding: 6rem 1rem 4rem; }
+  .search-widget-luxury { transform: translateY(0); margin-top: 2rem; }
 }
 </style>

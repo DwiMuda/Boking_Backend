@@ -23,9 +23,9 @@ class ReportService {
                 : (float)$result['total'];
         }
 
-        $stmt = $pdo->prepare("SELECT DATE(tgl_booking) as tgl, COUNT(*) as total FROM bookings
-            WHERE tgl_booking >= CURDATE() AND tgl_booking < CURDATE() + INTERVAL 7 DAY
-            GROUP BY tgl_booking ORDER BY tgl_booking");
+        $stmt = $pdo->prepare("SELECT DATE(COALESCE(tgl_booking, check_in)) as tgl, COUNT(*) as total FROM bookings
+            WHERE COALESCE(tgl_booking, check_in) >= CURDATE() AND COALESCE(tgl_booking, check_in) < CURDATE() + INTERVAL 7 DAY
+            GROUP BY tgl ORDER BY tgl");
         $stmt->execute();
         $stats['weekly_bookings'] = $stmt->fetchAll();
         foreach ($stats['weekly_bookings'] as &$wb) {
@@ -36,17 +36,17 @@ class ReportService {
     }
 
     public static function getReport($pdo, $from, $to) {
-        $from = $from ?: date('Y-m-d', strtotime('-30 days'));
+        $from = $from ?: '2000-01-01';
         $to = $to ?: date('Y-m-d');
 
-        $stmt = $pdo->prepare("SELECT b.tgl_booking as tanggal,
+        $stmt = $pdo->prepare("SELECT COALESCE(b.tgl_booking, b.check_in) as tanggal,
             COALESCE(s.nama, rt.nama) as service_nama,
             COUNT(*) as total_booking, SUM(b.total_harga) as total_pendapatan
             FROM bookings b
             LEFT JOIN services s ON b.service_id = s.id
             LEFT JOIN rooms r ON b.room_id = r.id
             LEFT JOIN room_types rt ON r.room_type_id = rt.id
-            WHERE b.tgl_booking >= ? AND b.tgl_booking <= ? AND b.status IN ('confirmed', 'completed')
+            WHERE COALESCE(b.tgl_booking, b.check_in) >= ? AND COALESCE(b.tgl_booking, b.check_in) <= ? AND b.status IN ('confirmed', 'completed')
             GROUP BY tanggal, COALESCE(s.nama, rt.nama) ORDER BY tanggal ASC");
         $stmt->execute([$from, $to]);
         $report_data = $stmt->fetchAll();
@@ -59,7 +59,7 @@ class ReportService {
             LEFT JOIN services s ON b.service_id = s.id
             LEFT JOIN rooms r ON b.room_id = r.id
             LEFT JOIN room_types rt ON r.room_type_id = rt.id
-            WHERE b.tgl_booking >= ? AND b.tgl_booking <= ? AND b.status IN ('confirmed', 'completed')
+            WHERE COALESCE(b.tgl_booking, b.check_in) >= ? AND COALESCE(b.tgl_booking, b.check_in) <= ? AND b.status IN ('confirmed', 'completed')
             GROUP BY COALESCE(s.nama, rt.nama) ORDER BY total DESC");
         $stmt->execute([$from, $to]);
         $service_summary = $stmt->fetchAll();
@@ -68,7 +68,7 @@ class ReportService {
         }
 
         $stmt = $pdo->prepare("SELECT COUNT(*) as total, SUM(total_harga) as revenue FROM bookings
-            WHERE tgl_booking >= ? AND tgl_booking <= ? AND status IN ('confirmed', 'completed')");
+            WHERE COALESCE(tgl_booking, check_in) >= ? AND COALESCE(tgl_booking, check_in) <= ? AND status IN ('confirmed', 'completed')");
         $stmt->execute([$from, $to]);
         $summary = $stmt->fetch();
         cast_types($summary, ['total' => 'integer', 'revenue' => 'double']);

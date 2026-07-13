@@ -1092,3 +1092,10 @@
 @media (max-width: 480px) {
   .masonry-grid { columns: 1; }
 }
+
+/* ── Image Fallback ── */
+[style*="background-image"] {
+  background-color: var(--bg-elevated, #1a1d2e);
+  background-size: cover;
+  background-position: center;
+}

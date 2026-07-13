@@ -12,20 +12,48 @@ class BookingService {
         validate_date_not_past($tgl);
 
         $service = find_or_fail($pdo, 'services', $service_id, '*', "is_active = 1");
+        $durasi = (int)$service['durasi_menit'];
 
-        $stmt = $pdo->prepare("INSERT INTO bookings (user_id, service_id, tipe_booking, tgl_booking, jam_booking, total_harga, catatan)
-            SELECT ?, ?, 'service', ?, ?, ?, ? FROM DUAL
-            WHERE NOT EXISTS (
-                SELECT 1 FROM bookings
-                WHERE service_id = ? AND tgl_booking = ? AND jam_booking = ? AND status != 'cancelled'
-            )");
-        $stmt->execute([$user['id'], $service_id, $tgl, $jam, $service['harga'], $catatan, $service_id, $tgl, $jam]);
+        $pdo->beginTransaction();
+        try {
+            // Cek overlap waktu: booking baru tidak boleh bertabrakan dengan booking yang sudah ada
+            // Menggunakan SELECT ... FOR UPDATE untuk mencegah race condition
+            $stmt = $pdo->prepare("
+                SELECT b.jam_booking, s.durasi_menit
+                FROM bookings b
+                JOIN services s ON b.service_id = s.id
+                WHERE b.service_id = ? AND b.tgl_booking = ? AND b.status != 'cancelled'
+                FOR UPDATE");
+            $stmt->execute([$service_id, $tgl]);
+            $existing = $stmt->fetchAll();
 
-        if ($stmt->rowCount() === 0) {
-            throw new AppException('Jadwal sudah dibooking. Silakan pilih jam lain.', 409);
+            // Hitung waktu mulai dan selesai booking baru
+            $new_start = strtotime($jam);
+            $new_end = $new_start + ($durasi * 60);
+
+            foreach ($existing as $ex) {
+                $ex_start = strtotime($ex['jam_booking']);
+                $ex_end = $ex_start + ((int)$ex['durasi_menit'] * 60);
+
+                // Cek apakah ada overlap: booking baru mulai sebelum yang lama selesai DAN selesai setelah yang lama mulai
+                if ($new_start < $ex_end && $new_end > $ex_start) {
+                    $pdo->rollBack();
+                    throw new AppException('Jadwal bertabrakan dengan booking lain. Silakan pilih jam lain.', 409);
+                }
+            }
+
+            $stmt = $pdo->prepare("INSERT INTO bookings (user_id, service_id, tipe_booking, tgl_booking, jam_booking, total_harga, catatan) VALUES (?, ?, 'service', ?, ?, ?, ?)");
+            $stmt->execute([$user['id'], $service_id, $tgl, $jam, $service['harga'], $catatan]);
+
+            $booking_id = (int)$pdo->lastInsertId();
+            $pdo->commit();
+        } catch (AppException $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw $e;
+        } catch (\Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw new AppException('Gagal membuat booking: ' . $e->getMessage(), 500);
         }
-
-        $booking_id = (int)$pdo->lastInsertId();
 
         $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.deskripsi as service_deskripsi, s.durasi_menit, s.kategori
             FROM bookings b JOIN services s ON b.service_id = s.id WHERE b.id = ?");
@@ -48,6 +76,7 @@ class BookingService {
 
         return $booking;
     }
+
 
     public static function checkAvailability($pdo, $service_id, $tgl) {
         $service_id = validate_positive_int($service_id, 'ID layanan');
@@ -130,10 +159,7 @@ class BookingService {
         $stmt = $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ?");
         $stmt->execute([$id]);
 
-        $stmt = $pdo->prepare("SELECT email, nama FROM users WHERE id = ?");
-        $stmt->execute([$user['id']]);
-        $user_data = $stmt->fetch();
-        email_status_update($user_data['email'], $user_data['nama'], $id, 'cancelled');
+        email_status_update($user['email'], $user['nama'], $id, 'cancelled');
     }
 
     public static function getDetail($pdo, $user, $id) {
@@ -160,20 +186,35 @@ class BookingService {
         return $booking;
     }
 
-    public static function getMyBookings($pdo, $user_id, $page = 1) {
+    public static function getMyBookings($pdo, $user_id, $page = 1, $tipe = '') {
         $p = paginate($page);
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM bookings WHERE user_id = ?");
-        $stmt->execute([$user_id]);
-        $total = (int)$stmt->fetch()['total'];
-
-        $stmt = $pdo->prepare("SELECT b.*, s.nama as service_nama, s.durasi_menit, s.kategori,
+        $count_sql = "SELECT COUNT(*) as total FROM bookings WHERE user_id = ?";
+        $sql = "SELECT b.*, s.nama as service_nama, s.durasi_menit, s.kategori,
             rt.nama as room_type_nama, r.nomor_kamar
             FROM bookings b
             LEFT JOIN services s ON b.service_id = s.id
             LEFT JOIN rooms r ON b.room_id = r.id
             LEFT JOIN room_types rt ON r.room_type_id = rt.id
-            WHERE b.user_id = ? ORDER BY b.created_at DESC LIMIT ? OFFSET ?");
-        $stmt->execute([$user_id, $p['limit'], $p['offset']]);
+            WHERE b.user_id = ?";
+            
+        $params = [$user_id];
+        
+        if (!empty($tipe)) {
+            $count_sql .= " AND tipe_booking = ?";
+            $sql .= " AND b.tipe_booking = ?";
+            $params[] = $tipe;
+        }
+        
+        $stmt = $pdo->prepare($count_sql);
+        $stmt->execute($params);
+        $total = (int)$stmt->fetch()['total'];
+
+        $sql .= " ORDER BY b.created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $p['limit'];
+        $params[] = $p['offset'];
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         $bookings = $stmt->fetchAll();
 
         foreach ($bookings as &$b) {
