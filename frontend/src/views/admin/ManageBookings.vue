@@ -1,6 +1,12 @@
 <template>
   <div class="container">
-    <h2 class="mb-1">Kelola Booking</h2>
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/admin')">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Dashboard
+      </button>
+      <h2 class="mb-0">Kelola Booking</h2>
+    </div>
 
     <div class="filter-bar">
       <input v-model="search" placeholder="Cari user/layanan..." @input="onSearch" />
@@ -68,6 +74,7 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import { getAdminBookings, updateBookingStatus } from '../../api'
+import { ArrowLeftIcon } from '@lucide/vue'
 
 const { proxy } = getCurrentInstance()
 
@@ -135,6 +142,3 @@ function formatHarga(harga) {
   return new Intl.NumberFormat('id-ID').format(harga)
 }
 </script>
-
-<style scoped>
-</style>

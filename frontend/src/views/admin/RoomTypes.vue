@@ -1,8 +1,14 @@
 <template>
   <div class="container">
-    <div class="flex justify-between items-center mb-1">
-      <h2>Kelola Tipe Kamar</h2>
-      <button class="btn btn-primary btn-sm" @click="openAdd">Tambah Tipe Kamar</button>
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/admin')">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Dashboard
+      </button>
+      <div class="flex justify-between items-center flex-1">
+        <h2 class="mb-0">Kelola Tipe Kamar</h2>
+        <button class="btn btn-primary btn-sm" @click="openAdd">Tambah Tipe Kamar</button>
+      </div>
     </div>
 
     <AppSkeleton v-if="loading" type="table-row" :count="4" />
@@ -100,6 +106,7 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import { getRooms, createRoomType, updateRoomType, deleteRoomType, uploadFile } from '../../api'
+import { ArrowLeftIcon } from '@lucide/vue'
 
 const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const { proxy } = getCurrentInstance()

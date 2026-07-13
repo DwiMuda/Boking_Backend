@@ -1,7 +1,13 @@
 <template>
   <div class="container">
-    <h2 class="mb-1">Dashboard</h2>
-
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/')">
+        <ArrowLeftIcon :size="18" />
+        Kembali
+      </button>
+      <h2 class="mb-0">Dashboard</h2>
+    </div>
+ 
     <AppSkeleton v-if="loading" type="card" :count="4" />
 
     <div v-else-if="stats">
@@ -121,7 +127,18 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getAdminDashboard } from '../../api'
-import { CalendarCheckIcon, ClockIcon, CheckCircleIcon, FlagIcon, UsersIcon, WrenchIcon, BedDoubleIcon, DoorOpenIcon, WalletIcon } from '@lucide/vue'
+import { 
+  ArrowLeftIcon,
+  CalendarCheckIcon, 
+  ClockIcon, 
+  CheckCircleIcon, 
+  FlagIcon, 
+  UsersIcon, 
+  WrenchIcon, 
+  BedDoubleIcon, 
+  DoorOpenIcon, 
+  WalletIcon 
+} from '@lucide/vue'
 
 const stats = ref(null)
 const loading = ref(true)

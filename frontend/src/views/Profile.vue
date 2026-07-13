@@ -1,5 +1,12 @@
 <template>
   <div class="profile-page">
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/')">
+        <ArrowLeftIcon :size="18" />
+        Kembali
+      </button>
+    </div>
+
     <div v-if="!user" class="loading">
       <AppSpinner variant="ring" size="lg" />
       <span>Memuat profil...</span>
@@ -112,7 +119,13 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../stores/auth'
-import { UserIcon, CalendarIcon, CalendarCheckIcon, DollarSignIcon } from '@lucide/vue'
+import { 
+  ArrowLeftIcon,
+  UserIcon, 
+  CalendarIcon, 
+  CalendarCheckIcon, 
+  DollarSignIcon 
+} from '@lucide/vue'
 import { getCurrentInstance } from 'vue'
 import { getMyBookings, cancelBooking } from '../api'
 
@@ -199,6 +212,7 @@ async function handleSave() {
 .profile-page {
   max-width: 640px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .profile-header-card {
@@ -307,7 +321,6 @@ async function handleSave() {
   cursor: not-allowed;
 }
 
-/* Booking list */
 .booking-list {
   display: flex;
   flex-direction: column;
