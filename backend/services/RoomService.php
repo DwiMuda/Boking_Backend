@@ -29,15 +29,6 @@ class RoomService {
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    public static function categorizeRoomByName($nama) {
-        $nama = strtolower($nama);
-        if (strpos($nama, 'premium') !== false) return 'Premium';
-        if (strpos($nama, 'deluxe') !== false) return 'Deluxe';
-        if (strpos($nama, 'family') !== false || strpos($nama, 'keluarga') !== false) return 'Family';
-        if (strpos($nama, 'suite') !== false) return 'Suite';
-        return 'Standard';
-    }
-
     public static function getRoomTypeById($pdo, $id) {
         $id = validate_positive_int($id, 'ID tipe kamar');
         $stmt = $pdo->prepare("SELECT * FROM room_types WHERE id = ?");
@@ -113,25 +104,39 @@ class RoomService {
         $nights = max(1, (int)ceil((strtotime($check_out) - strtotime($check_in)) / 86400));
         $total_harga = (float)$room_type['harga_per_malam'] * $nights;
 
-        $stmt = $pdo->prepare("SELECT r.id FROM rooms r
-            WHERE r.room_type_id = ? AND r.status = 'available'
-            AND r.id NOT IN (
-                SELECT b.room_id FROM bookings b
-                WHERE b.room_id IS NOT NULL AND b.status NOT IN ('cancelled')
-                AND b.check_in < ? AND b.check_out > ?
-            )
-            LIMIT 1");
-        $stmt->execute([$room_type_id, $check_out, $check_in]);
-        $available_room = $stmt->fetch();
+        $pdo->beginTransaction();
+        try {
+            // Gunakan FOR UPDATE untuk mengunci baris dan mencegah race condition
+            $stmt = $pdo->prepare("SELECT r.id FROM rooms r
+                WHERE r.room_type_id = ? AND r.status = 'available'
+                AND r.id NOT IN (
+                    SELECT b.room_id FROM bookings b
+                    WHERE b.room_id IS NOT NULL AND b.status NOT IN ('cancelled')
+                    AND b.check_in < ? AND b.check_out > ?
+                )
+                LIMIT 1
+                FOR UPDATE");
+            $stmt->execute([$room_type_id, $check_out, $check_in]);
+            $available_room = $stmt->fetch();
 
-        if (!$available_room) {
-            throw new AppException('Tidak ada kamar tersedia untuk tanggal tersebut', 409);
+            if (!$available_room) {
+                $pdo->rollBack();
+                throw new AppException('Tidak ada kamar tersedia untuk tanggal tersebut', 409);
+            }
+
+            $stmt = $pdo->prepare("INSERT INTO bookings (user_id, room_id, tipe_booking, check_in, check_out, jumlah_tamu, total_harga, catatan)
+                VALUES (?, ?, 'room', ?, ?, ?, ?, ?)");
+            $stmt->execute([$user['id'], $available_room['id'], $check_in, $check_out, $jumlah_tamu, $total_harga, $catatan]);
+            $booking_id = (int)$pdo->lastInsertId();
+
+            $pdo->commit();
+        } catch (AppException $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw $e;
+        } catch (\Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw new AppException('Gagal membuat booking kamar: ' . $e->getMessage(), 500);
         }
-
-        $stmt = $pdo->prepare("INSERT INTO bookings (user_id, room_id, tipe_booking, check_in, check_out, jumlah_tamu, total_harga, catatan)
-            VALUES (?, ?, 'room', ?, ?, ?, ?, ?)");
-        $stmt->execute([$user['id'], $available_room['id'], $check_in, $check_out, $jumlah_tamu, $total_harga, $catatan]);
-        $booking_id = (int)$pdo->lastInsertId();
 
         $stmt = $pdo->prepare("SELECT b.*, rt.nama as room_type_nama, r.nomor_kamar, rt.harga_per_malam
             FROM bookings b
@@ -164,6 +169,7 @@ class RoomService {
 
         return $booking;
     }
+
 
     public static function createRoomType($pdo, $data) {
         $nama = validate_required($data['nama'] ?? '', 'Nama tipe kamar');
