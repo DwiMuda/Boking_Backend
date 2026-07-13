@@ -32,6 +32,12 @@ function send_email($to, $subject, $body) {
     }
 }
 
+function write_otp_log($email, $otp) {
+    $log = __DIR__ . '/../uploads/otp_debug.log';
+    $line = "[" . date('Y-m-d H:i:s') . "] OTP untuk $email: $otp" . PHP_EOL;
+    file_put_contents($log, $line, FILE_APPEND | LOCK_EX);
+}
+
 function email_verification_otp($user_email, $user_nama, $otp) {
     $subject = "Kode Verifikasi - Sistem Booking";
     $body = "
@@ -41,7 +47,11 @@ function email_verification_otp($user_email, $user_nama, $otp) {
         <p>Kode berlaku selama <strong>10 menit</strong>.</p>
         <p>Abaikan email ini jika kamu tidak mendaftar.</p>
     ";
-    return send_email($user_email, $subject, $body);
+    $sent = send_email($user_email, $subject, $body);
+    if (!$sent) {
+        write_otp_log($user_email, $otp);
+    }
+    return $sent;
 }
 
 function email_status_update($user_email, $user_nama, $booking_id, $status) {
