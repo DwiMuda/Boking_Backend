@@ -1,6 +1,12 @@
 <template>
   <div class="max-w-600 mx-auto">
-    <h2 class="mb-1">Booking Kamar</h2>
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push(`/rooms/${roomType?.id || ''}`)">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Detail
+      </button>
+      <h2 class="mb-0">Booking Kamar</h2>
+    </div>
 
     <AppSkeleton v-if="loading" />
 
@@ -61,6 +67,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getRoomDetail, bookRoom } from '../api'
+import { ArrowLeftIcon } from '@lucide/vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -154,4 +161,6 @@ function formatHarga(h) { return new Intl.NumberFormat('id-ID').format(h); }
   font-weight: var(--weight-bold);
   font-size: var(--text-lg);
 }
+
+.mb-0 { margin-bottom: 0; }
 </style>

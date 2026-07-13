@@ -1,6 +1,12 @@
 <template>
   <div class="container">
-    <h2 class="mb-1">Laporan</h2>
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/admin')">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Dashboard
+      </button>
+      <h2 class="mb-0">Laporan</h2>
+    </div>
 
     <div class="filter-bar">
       <input v-model="from" type="date" />
@@ -89,7 +95,7 @@
 <script setup>
 import { ref, computed, getCurrentInstance } from 'vue'
 import { getAdminReports } from '../../api'
-import { CalendarCheckIcon, WalletIcon, DownloadIcon } from '@lucide/vue'
+import { ArrowLeftIcon, CalendarCheckIcon, WalletIcon, DownloadIcon } from '@lucide/vue'
 
 const { proxy } = getCurrentInstance()
 

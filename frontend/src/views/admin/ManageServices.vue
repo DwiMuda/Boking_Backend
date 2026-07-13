@@ -1,8 +1,14 @@
 <template>
   <div class="container">
-    <div class="flex justify-between items-center mb-1">
-      <h2>Kelola Layanan</h2>
-      <button class="btn btn-primary btn-sm" @click="openAdd">Tambah Layanan</button>
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/admin')">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Dashboard
+      </button>
+      <div class="flex justify-between items-center flex-1">
+        <h2 class="mb-0">Kelola Layanan</h2>
+        <button class="btn btn-primary btn-sm" @click="openAdd">Tambah Layanan</button>
+      </div>
     </div>
 
     <AppSkeleton v-if="loading" type="table-row" :count="4" />
@@ -93,6 +99,7 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import { getServices, createService, updateService, deleteService } from '../../api'
+import { ArrowLeftIcon } from '@lucide/vue'
 
 const { proxy } = getCurrentInstance()
 
@@ -120,14 +127,14 @@ async function fetchServices() {
 
 function openAdd() {
   editing.value = null
-    form.value = { nama: '', deskripsi: '', harga: 0, durasi_menit: 60, kategori: 'spa', fasilitas: '' }
+  form.value = { nama: '', deskripsi: '', harga: 0, durasi_menit: 60, kategori: 'spa', fasilitas: '' }
   modalError.value = ''
   showModal.value = true
 }
 
 function openEdit(s) {
   editing.value = s.id
-    form.value = { nama: s.nama, deskripsi: s.deskripsi || '', harga: s.harga, durasi_menit: s.durasi_menit, kategori: s.kategori || 'spa', fasilitas: s.fasilitas || '' }
+  form.value = { nama: s.nama, deskripsi: s.deskripsi || '', harga: s.harga, durasi_menit: s.durasi_menit, kategori: s.kategori || 'spa', fasilitas: s.fasilitas || '' }
   modalError.value = ''
   showModal.value = true
 }

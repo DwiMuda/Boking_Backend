@@ -1,6 +1,12 @@
 <template>
   <div class="container">
-    <h2 class="mb-1">Booking Saya</h2>
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/')">
+        <ArrowLeftIcon :size="18" />
+        Kembali
+      </button>
+      <h2 class="mb-0">Booking Saya</h2>
+    </div>
 
     <div class="filter-bar">
       <select v-model="tipeFilter" @change="resetAndFetch">
@@ -58,7 +64,7 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import { getMyBookings, cancelBooking } from '../api'
-import { CalendarIcon } from '@lucide/vue'
+import { ArrowLeftIcon, CalendarIcon } from '@lucide/vue'
 
 const { proxy } = getCurrentInstance()
 
@@ -169,5 +175,4 @@ function formatHarga(harga) {
   padding-top: 0.75rem;
   border-top: 1px solid var(--border-subtle);
 }
-
 </style>

@@ -2,7 +2,14 @@
   <div class="offers-page">
     <section class="offers-hero section-dark">
       <div class="container text-center">
-        <h1>Penawaran <span class="text-gold">Spesial</span></h1>
+        <div class="flex items-center justify-between mb-1">
+          <button class="btn btn-outline-light btn-sm" @click="$router.push('/')">
+            <ArrowLeftIcon :size="18" />
+            Kembali
+          </button>
+          <h1 class="mb-0">Penawaran <span class="text-gold">Spesial</span></h1>
+          <span></span>
+        </div>
         <p>Promo terbatas untuk pengalaman yang lebih berkesan</p>
       </div>
     </section>
@@ -29,7 +36,7 @@
 </template>
 
 <script setup>
-import { CalendarIcon } from '@lucide/vue'
+import { ArrowLeftIcon, CalendarIcon } from '@lucide/vue'
 
 const offers = [
   { title: 'Honeymoon Package', desc: 'Paket romantis untuk pasangan. Termasuk Suite Room 3 malam, candle light dinner, spa couple, dan bunga segar setiap hari.', badge: '20% OFF', badgeClass: 'badge-warm', valid: 'Berlaku s.d 30 Sep 2026', price: 3600000, link: '/rooms' },
@@ -97,4 +104,6 @@ function formatPrice(p) {
 .offer-meta { display: flex; align-items: center; gap: 0.35rem; color: var(--text-muted); font-size: var(--text-sm); }
 .offer-meta svg { color: var(--accent-primary); }
 .offer-price { font-family: var(--font-heading); font-weight: var(--weight-bold); color: var(--accent-warm); font-size: var(--text-sm); }
+
+.mb-0 { margin-bottom: 0; }
 </style>

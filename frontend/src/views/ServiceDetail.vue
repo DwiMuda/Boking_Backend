@@ -1,5 +1,12 @@
 <template>
-  <div>
+  <div class="service-detail-wrapper">
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/services')">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Layanan
+      </button>
+    </div>
+
     <AppSkeleton v-if="loading" type="card" />
 
     <div v-else-if="error" class="alert alert-error">{{ error }}</div>
@@ -45,34 +52,27 @@
           </div>
         </div>
 
-        <router-link :to="`/booking/${service.id}`" class="btn btn-primary btn-lg btn-full mt-1-5">
-          Booking Sekarang
-        </router-link>
+        <div class="flex gap-1 mt-1-5">
+          <router-link :to="`/booking/${service.id}`" class="btn btn-primary btn-lg flex-1">
+            Booking Sekarang
+          </router-link>
+          <button class="btn btn-ghost btn-lg" @click="$router.push('/services')">Kembali</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getServiceDetail } from '../api'
-import { ClockIcon, WalletIcon, ListChecksIcon, LeafIcon, FlowerIcon, SparklesIcon, UtensilsIcon, WineIcon, CoffeeIcon } from '@lucide/vue'
+import { ArrowLeftIcon, ClockIcon, WalletIcon, ListChecksIcon } from '@lucide/vue'
 
 const route = useRoute()
 const service = ref(null)
 const loading = ref(true)
 const error = ref('')
-
-const iconComponent = computed(() => {
-  if (!service.value) return SparklesIcon
-  const map = {
-    'Classic Massage': LeafIcon, 'Aromatherapy': FlowerIcon, 'Body Scrub': SparklesIcon,
-    'Facial Treatment': FlowerIcon, 'Fine Dining Set Menu': UtensilsIcon, 'Breakfast Buffet': CoffeeIcon,
-    'Afternoon Tea': CoffeeIcon, 'Private Dinner': WineIcon,
-  }
-  return map[service.value.nama] || (service.value.kategori === 'spa' ? SparklesIcon : UtensilsIcon)
-})
 
 onMounted(async () => {
   try {
@@ -105,7 +105,13 @@ function getServicePhoto(s) {
 </script>
 
 <style scoped>
-.detail-page { max-width: 700px; margin: 0 auto; padding: 0 1rem; }
+.service-detail-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.detail-page { }
 
 .detail-hero {
   position: relative;
@@ -164,4 +170,6 @@ function getServicePhoto(s) {
 .info-label { display: block; font-size: var(--text-xs); color: var(--text-muted); }
 .info-value { display: block; font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .detail-info-item.full-width { grid-column: 1 / -1; }
+
+.flex-1 { flex: 1; }
 </style>

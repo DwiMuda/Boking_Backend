@@ -54,7 +54,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getServices } from '../api'
-import { SparklesIcon, UtensilsIcon, ClockIcon, BedDoubleIcon, LeafIcon, WineIcon, FlowerIcon, CoffeeIcon } from '@lucide/vue'
+import { SparklesIcon, UtensilsIcon, BedDoubleIcon } from '@lucide/vue'
 
 const route = useRoute()
 const services = ref([])
@@ -83,20 +83,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-function getIcon(s) {
-  const map = {
-    'Classic Massage': LeafIcon,
-    'Aromatherapy': FlowerIcon,
-    'Body Scrub': SparklesIcon,
-    'Facial Treatment': FlowerIcon,
-    'Fine Dining Set Menu': UtensilsIcon,
-    'Breakfast Buffet': CoffeeIcon,
-    'Afternoon Tea': CoffeeIcon,
-    'Private Dinner': WineIcon,
-  }
-  return map[s.nama] || (s.kategori === 'spa' ? SparklesIcon : UtensilsIcon)
-}
 
 function getServicePhoto(s) {
   const map = {

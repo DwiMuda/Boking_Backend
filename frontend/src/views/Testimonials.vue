@@ -2,7 +2,14 @@
   <div class="testi-page">
     <section class="testi-hero section-dark">
       <div class="container text-center">
-        <h1>Testimoni <span class="text-gold">Tamu</span></h1>
+        <div class="flex items-center justify-between mb-1">
+          <button class="btn btn-outline-light btn-sm" @click="$router.push('/')">
+            <ArrowLeftIcon :size="18" />
+            Kembali
+          </button>
+          <h1 class="mb-0">Testimoni <span class="text-gold">Tamu</span></h1>
+          <span></span>
+        </div>
         <p>Pengalaman nyata dari tamu yang telah menginap</p>
       </div>
     </section>
@@ -28,6 +35,8 @@
 </template>
 
 <script setup>
+import { ArrowLeftIcon } from '@lucide/vue'
+
 const reviews = [
   { name: 'Sarah Wijaya', quote: 'Pemandangan dari Suite Room bikin takjub! Pelayanan ramah, makanan enak. Pasti balik lagi.', rating: 5, visit: 'Suite Room - 3 malam' },
   { name: 'Budi Santoso', quote: 'Spa-nya kelas dunia. Aromatherapy dan body scrub bikin badan segar kembali.', rating: 5, visit: 'Deluxe Room - 2 malam' },
@@ -77,4 +86,6 @@ function renderStars(n) {
 }
 .testi-author div strong { display: block; font-size: var(--text-sm); }
 .testi-author div span { font-size: var(--text-xs); color: var(--text-muted); }
+
+.mb-0 { margin-bottom: 0; }
 </style>

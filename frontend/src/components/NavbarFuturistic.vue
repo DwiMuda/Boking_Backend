@@ -24,8 +24,8 @@
 
       <div class="nf-actions">
         <template v-if="auth.isLoggedIn">
-          <div class="nf-user" @click="userOpen = !userOpen">
-            <button class="nf-avatar">
+          <div class="nf-user" ref="userMenuRef">
+            <button class="nf-avatar" @click="toggleUserMenu">
               {{ auth.userName?.charAt(0) || 'U' }}
             </button>
             <Transition name="nf-drop">
@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import {
@@ -76,6 +76,7 @@ const auth = useAuthStore()
 const mobileOpen = ref(false)
 const userOpen = ref(false)
 const hideNav = ref(false)
+const userMenuRef = ref(null)
 
 const menuItems = [
   { path: '/', label: 'Beranda', icon: HomeIcon },
@@ -99,10 +100,26 @@ function closeAll() {
   closeNav()
 }
 
+function toggleUserMenu() {
+  userOpen.value = !userOpen.value
+}
+
 function handleLogout() {
   auth.logout()
   closeAll()
   router.push('/login')
+}
+
+function handleClickOutside(event) {
+  if (userOpen.value && userMenuRef.value && !userMenuRef.value.contains(event.target)) {
+    userOpen.value = false
+  }
+}
+
+function handleScroll() {
+  if (userOpen.value) {
+    userOpen.value = false
+  }
 }
 
 let scrollY = 0
@@ -112,6 +129,15 @@ onMounted(() => {
     hideNav.value = window.scrollY > scrollY && window.scrollY > 100
     scrollY = window.scrollY
   }, { passive: true })
+  
+  document.addEventListener('click', handleClickOutside)
+  
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -234,6 +260,11 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 12px rgba(45, 90, 69, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.nf-avatar:hover {
+  transform: scale(1.05);
 }
 
 .nf-dropdown {
@@ -243,6 +274,7 @@ onMounted(() => {
   min-width: 180px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
   padding: 0.4rem;
