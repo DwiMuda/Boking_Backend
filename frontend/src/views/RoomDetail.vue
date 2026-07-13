@@ -1,5 +1,12 @@
 <template>
-  <div>
+  <div class="room-detail-wrapper">
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push('/rooms')">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Kamar
+      </button>
+    </div>
+
     <AppSkeleton v-if="loading" type="card" />
 
     <div v-else-if="error" class="alert alert-error">{{ error }}</div>
@@ -31,9 +38,14 @@
           </div>
         </div>
 
-        <router-link :to="`/booking-room/${room.id}`" class="btn btn-gold btn-lg btn-full mt-1">
-          Booking Kamar Ini
-        </router-link>
+        <div class="flex gap-1">
+          <router-link :to="`/booking-room/${room.id}`" class="btn btn-gold btn-lg flex-1">
+            Booking Kamar Ini
+          </router-link>
+          <button class="btn btn-ghost btn-lg" @click="$router.push('/rooms')">
+            Kembali
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -43,7 +55,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getRoomDetail } from '../api'
-import { BedDoubleIcon, UsersIcon, CheckIcon } from '@lucide/vue'
+import { ArrowLeftIcon, UsersIcon, CheckIcon } from '@lucide/vue'
 
 const route = useRoute()
 const room = ref(null)
@@ -83,7 +95,13 @@ function formatHarga(h) { return new Intl.NumberFormat('id-ID').format(h); }
 </script>
 
 <style scoped>
-.room-detail { max-width: 700px; margin: 0 auto; padding: 0 1rem; }
+.room-detail-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.room-detail { }
 
 .room-hero {
   position: relative;
@@ -146,4 +164,6 @@ function formatHarga(h) { return new Intl.NumberFormat('id-ID').format(h); }
 }
 
 .fasilitas-item svg { color: var(--semantic-success); flex-shrink: 0; }
+
+.flex-1 { flex: 1; }
 </style>

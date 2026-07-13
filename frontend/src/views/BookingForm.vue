@@ -1,6 +1,12 @@
 <template>
   <div class="max-w-600">
-    <h2 class="mb-1">Form Booking</h2>
+    <div class="flex items-center gap-3 mb-1">
+      <button class="btn btn-ghost btn-sm" @click="$router.push(`/services/${service?.id || ''}`)">
+        <ArrowLeftIcon :size="18" />
+        Kembali ke Detail
+      </button>
+      <h2 class="mb-0">Form Booking</h2>
+    </div>
 
     <div v-if="error" class="alert alert-error">{{ error }}</div>
 
@@ -44,10 +50,13 @@
         <textarea v-model="catatan" rows="3" placeholder="Catatan untuk booking..."></textarea>
       </div>
 
-      <button class="btn btn-primary btn-full" :disabled="!jam || submitting" @click="submitBooking">
-        <AppSpinner v-if="submitting" variant="ring" size="sm" />
-        {{ submitting ? 'Memproses...' : 'Konfirmasi Booking' }}
-      </button>
+      <div class="flex gap-1">
+        <button class="btn btn-primary flex-1" :disabled="!jam || submitting" @click="submitBooking">
+          <AppSpinner v-if="submitting" variant="ring" size="sm" />
+          {{ submitting ? 'Memproses...' : 'Konfirmasi Booking' }}
+        </button>
+        <button class="btn btn-ghost" @click="$router.push(`/services/${service?.id || ''}`)">Batal</button>
+      </div>
     </div>
   </div>
 </template>
@@ -56,6 +65,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getServiceDetail, checkAvailability, createBooking } from '../api'
+import { ArrowLeftIcon } from '@lucide/vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -121,3 +131,8 @@ function formatHarga(harga) {
   return new Intl.NumberFormat('id-ID').format(harga)
 }
 </script>
+
+<style scoped>
+.flex-1 { flex: 1; }
+.mb-0 { margin-bottom: 0; }
+</style>

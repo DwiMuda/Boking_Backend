@@ -45,7 +45,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getRooms } from '../api'
-import { BedDoubleIcon, UsersIcon } from '@lucide/vue'
+import { UsersIcon } from '@lucide/vue'
 
 const route = useRoute()
 const rooms = ref([])
@@ -57,7 +57,7 @@ const filteredRooms = computed(() => {
   if (!type) return rooms.value
   return rooms.value.filter(r => r.nama?.toLowerCase().includes(type))
 })
-const colors = ['#1B3A2F', '#2D5A45', '#3D7A5C', '#4E9A73', '#5C8A6B']
+
 const roomPhotos = [
   '/images/room-deluxe.jpg',
   '/images/villa-pool.jpg',
